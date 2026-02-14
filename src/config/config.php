@@ -3,7 +3,7 @@ if (session_status() === PHP_SESSION_NONE){
      session_start();
 }
 
-$envPath = __DIR__ . '/../.env';
+$envPath = __DIR__ . '/../../.env';
 if (file_exists($envPath)) {
     foreach (file($envPath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
         $line = trim($line);

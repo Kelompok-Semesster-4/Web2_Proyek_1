@@ -1,6 +1,7 @@
 <?php
-require __DIR__.'/header.php';
-require_once __DIR__ . '/../config/config.php';
+require __DIR__ . '/templates/header.php';
+require_once __DIR__ . '/config/config.php';
+
 
 $pdo = db();
 echo "DB connect OK";
@@ -17,3 +18,7 @@ echo "DB connect OK";
     wkkwkw
 </body>
 </html>
+
+<?php
+require __DIR__ . '/templates/footer.php';
+?>
