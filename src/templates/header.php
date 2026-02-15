@@ -8,7 +8,7 @@ $pageTitle = $pageTitle ?? "Peminjaman Ruangan";
 $activeNav = $activeNav ?? "home";
 
 // Sesuaikan dengan URL project kamu di browser
-$BASE = "/web2/projek/Web2_Proyek_1/src";
+$BASE = "/src";
 
 // Link menu (kalau halaman belum ada, sementara arahkan ke index.php)
 $L = [
@@ -31,7 +31,7 @@ function active(string $key, string $activeNav): string {
   <title><?= htmlspecialchars($pageTitle) ?></title>
 
   <!-- Semua style ada di file ini -->
-  <link rel="stylesheet" href="<?= $BASE ?>/assets/css/style.css">
+  <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 <body>
 
