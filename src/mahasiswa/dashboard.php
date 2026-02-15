@@ -1,164 +1,146 @@
 <?php
-require_once __DIR__ . "/../auth/auth.php";
-requireLogin();
+declare(strict_types=1);
 
 require_once __DIR__ . "/../config/koneksi.php";
 
-$pageTitle = "Dashboard";
+$pageTitle = "Home";
 $activeNav = "home";
 require_once __DIR__ . "/../templates/header.php";
 
-$BASE = "/web2/projek/Web2_Proyek_1/src";
+$BASE = "/Web2_Proyek_1/src";
+
+/* HERO IMAGE */
+$hero = query("SELECT foto FROM ruangan ORDER BY id LIMIT 1")->fetch();
+$heroImg = $hero['foto'] ?? 'default.jpg';
+
+/* FILTER */
+$tgl_awal = $_GET['tgl_awal'] ?? '';
+$tgl_akhir = $_GET['tgl_akhir'] ?? '';
+$gedung = $_GET['gedung'] ?? '';
+
+$params = [];
+$where = [];
+
+if ($gedung) {
+   $where[] = "ruangan.gedung = ?";
+   $params[] = $gedung;
+}
+
+if ($tgl_awal && $tgl_akhir) {
+   $where[] = "NOT EXISTS (
+        SELECT 1 FROM peminjaman
+        WHERE peminjaman.ruangan_id = ruangan.id
+        AND tanggal BETWEEN ? AND ?
+    )";
+   $params[] = $tgl_awal;
+   $params[] = $tgl_akhir;
+}
+
+$sql = "SELECT * FROM ruangan";
+if ($where)
+   $sql .= " WHERE " . implode(" AND ", $where);
+$sql .= " ORDER BY nama_ruangan";
+
+$ruangan = query($sql, $params)->fetchAll();
+
+$gedungList = query("SELECT DISTINCT gedung FROM ruangan ORDER BY gedung")->fetchAll();
 ?>
 
 <!-- HERO -->
-<section class="py-5 text-center text-white" style="background:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.6)),
-url('<?= $BASE ?>/uploads/banner.jpg') center/cover; min-height:70vh; display:flex; align-items:center;">
-   <div class="container">
-      <h1 class="display-5 fw-bold">Room Booking System</h1>
-      <p class="lead">Selamat datang,
-         <?= e($_SESSION['nama'] ?? 'Mahasiswa') ?>
-      </p>
-      <a href="#ruangan" class="btn btn-success btn-lg mt-3">Lihat Ruangan</a>
+<section class="hero-full">
+   <img src="<?= $BASE ?>/uploads/ruangan/<?= e($heroImg) ?>">
+   <div class="hero-content">
+      <h5>WELCOME TO RBS</h5>
+      <h1>Room Booking System</h1>
+      <h2>Fasilkom Unsri</h2>
    </div>
 </section>
 
-
-<!-- TENTANG -->
-<section id="tentang" class="py-5">
-   <div class="container text-center">
-      <h2 class="mb-4">Tentang Sistem</h2>
-      <p class="col-md-8 mx-auto text-muted">
-         Sistem ini membantu mahasiswa melakukan peminjaman ruangan secara online.
-         Mulai dari melihat ruangan tersedia, mengajukan peminjaman,
-         hingga memantau status persetujuan oleh admin fakultas.
-      </p>
-   </div>
-</section>
-
-
-<!-- FITUR -->
-<section id="fitur" class="py-5 bg-light">
+<!-- FILTER -->
+<section class="filter-floating">
    <div class="container">
-      <h2 class="text-center mb-5">Fitur Sistem</h2>
+      <form class="filter-box" method="get">
+         <div class="row g-3 align-items-end">
 
-      <div class="row g-4 text-center">
-
-         <div class="col-md-4">
-            <div class="p-4 border rounded h-100">
-               <i class="bi bi-calendar-check fs-1 text-primary"></i>
-               <h5 class="mt-3">Cek Ketersediaan</h5>
-               <p class="text-muted">Mengetahui ruangan kosong berdasarkan tanggal kegiatan</p>
+            <div class="col-md-3">
+               <label>Tanggal Awal</label>
+               <input type="date" name="tgl_awal" value="<?= e($tgl_awal) ?>" class="form-control">
             </div>
-         </div>
 
-         <div class="col-md-4">
-            <div class="p-4 border rounded h-100">
-               <i class="bi bi-send-check fs-1 text-success"></i>
-               <h5 class="mt-3">Pengajuan Online</h5>
-               <p class="text-muted">Ajukan peminjaman langsung dari website</p>
+            <div class="col-md-3">
+               <label>Tanggal Akhir</label>
+               <input type="date" name="tgl_akhir" value="<?= e($tgl_akhir) ?>" class="form-control">
             </div>
-         </div>
 
-         <div class="col-md-4">
-            <div class="p-4 border rounded h-100">
-               <i class="bi bi-clock-history fs-1 text-warning"></i>
-               <h5 class="mt-3">Riwayat Status</h5>
-               <p class="text-muted">Melihat disetujui atau ditolak admin</p>
-            </div>
-         </div>
-
-      </div>
-   </div>
-</section>
-
-
-<!-- RUANGAN -->
-<section id="ruangan" class="py-5">
-   <div class="container">
-      <h2 class="text-center mb-5">Daftar Ruangan</h2>
-
-      <div class="row g-4">
-         <?php foreach ($ruangan as $r): ?>
-            <div class="col-md-4">
-
-               <div class="card shadow-sm h-100">
-                  <img src="<?= $BASE ?>/uploads/ruangan/<?= e($r['gambar']) ?>" class="card-img-top"
-                     style="height:200px;object-fit:cover">
-
-                  <div class="card-body">
-                     <h5 class="card-title">
-                        <?= e($r['nama_ruangan']) ?>
-                     </h5>
-                     <p class="card-text text-muted">
-                        Gedung
-                        <?= e($r['gedung']) ?> • Lantai
-                        <?= e($r['lantai']) ?><br>
-                        Kapasitas
-                        <?= e($r['kapasitas']) ?> orang
-                     </p>
-
-                     <button class="btn btn-primary w-100" data-bs-toggle="modal"
-                        data-bs-target="#modal<?= $r['id_ruangan'] ?>">
-                        Detail
-                     </button>
-                  </div>
+            <div class="col-md-3">
+               <label>Gedung</label>
+               <div class="select-wrap">
+                  <select name="gedung" class="form-control">
+                     <option value="">-- Semua Gedung --</option>
+                     <?php foreach ($gedungList as $g): ?>
+                        <option value="<?= e($g['gedung']) ?>" <?= $gedung == $g['gedung'] ? 'selected' : '' ?>>
+                           <?= e($g['gedung']) ?>
+                        </option>
+                     <?php endforeach; ?>
+                  </select>
                </div>
-
             </div>
 
-            <!-- MODAL DETAIL -->
-            <div class="modal fade" id="modal<?= $r['id_ruangan'] ?>" tabindex="-1">
-               <div class="modal-dialog modal-lg modal-dialog-centered">
-                  <div class="modal-content">
+            <div class="col-md-3">
+               <button class="btn w-100">Check</button>
+            </div>
 
-                     <div class="modal-header">
-                        <h5 class="modal-title">
-                           <?= e($r['nama_ruangan']) ?>
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                     </div>
+         </div>
+      </form>
+   </div>
+</section>
 
-                     <div class="modal-body">
-                        <div class="row">
+<div class="wrap">
+   <section class="py-5">
+      <div class="container">
 
-                           <div class="col-md-6">
-                              <img src="<?= $BASE ?>/uploads/ruangan/<?= e($r['gambar']) ?>" class="img-fluid rounded">
-                           </div>
+         <?php if (!$ruangan): ?>
+            <div class="text-center text-muted fs-5 mt-5">
+               Saat ini ruangan di gedung yang dipilih tidak tersedia.<br>
+               Silakan cek gedung lain.
+            </div>
+         <?php else: ?>
 
-                           <div class="col-md-6">
-                              <p><b>Gedung:</b>
-                                 <?= e($r['gedung']) ?>
-                              </p>
-                              <p><b>Lantai:</b>
-                                 <?= e($r['lantai']) ?>
-                              </p>
-                              <p><b>Kapasitas:</b>
-                                 <?= e($r['kapasitas']) ?> orang
-                              </p>
-                              <p><b>Deskripsi:</b><br>
-                                 <?= e($r['deskripsi']) ?>
-                              </p>
-                              <p><b>Fasilitas:</b><br>
-                                 <?= e($r['fasilitas']) ?>
-                              </p>
+            <div class="room-grid">
+               <?php foreach ($ruangan as $r): ?>
 
-                              <a href="<?= $BASE ?>/mahasiswa/peminjaman.php?ruang=<?= $r['id_ruangan'] ?>"
-                                 class="btn btn-success w-100 mt-3">
-                                 Ajukan Peminjaman
-                              </a>
-                           </div>
+                  <div class="room-item">
 
+                     <div class="room-card">
+
+                        <div class="room-img">
+                           <img src="<?= $BASE ?>/uploads/ruangan/<?= e($r['foto']) ?>" alt="<?= e($r['nama_ruangan']) ?>">
                         </div>
+
+                        <div class="room-body">
+                           <div class="room-title"><?= e($r['nama_ruangan']) ?></div>
+
+                           <div class="room-meta">
+                              Gedung <?= e($r['gedung']) ?><br>
+                              Kapasitas <?= e($r['kapasitas']) ?> orang
+                           </div>
+
+                           <a href="<?= $BASE ?>/mahasiswa/ruangan.php?id=<?= $r['id'] ?>" class="room-btn">
+                              View Details
+                           </a>
+                        </div>
+
                      </div>
 
                   </div>
-               </div>
+
+               <?php endforeach; ?>
             </div>
 
-         <?php endforeach; ?>
+         <?php endif; ?>
+
       </div>
-   </div>
-</section>
+   </section>
+</div>
 
 <?php require_once __DIR__ . "/../templates/footer.php"; ?>
