@@ -8,7 +8,7 @@ $pageTitle = $pageTitle ?? "Peminjaman Ruangan";
 $activeNav = $activeNav ?? "home";
 
 // Sesuaikan dengan URL project kamu di browser
-$BASE = "/Web2_Proyek_1/src";
+$BASE = "";
 
 // Link menu (kalau halaman belum ada, sementara arahkan ke index.php)
 $L = [
