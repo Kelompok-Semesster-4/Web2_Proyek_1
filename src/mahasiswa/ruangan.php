@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/../auth/auth.php';
+require_once __DIR__ . '/../auth/role.php';
 requireLogin();
+requireRole('mahasiswa');
 
 $pageTitle = "Ruangan";
 $activeNav = "ruangan";

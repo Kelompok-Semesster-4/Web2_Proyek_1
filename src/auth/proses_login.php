@@ -44,19 +44,31 @@ if (!$ok) {
 }
 
 session_regenerate_id(true);
+// Setelah session diset:
 $_SESSION['user_id'] = (int)$user['id'];
 $_SESSION['role']    = (string)$user['role'];
 $_SESSION['nama']    = (string)$user['nama'];
 
-if ($redirect !== '') {
-    header("Location: " . $redirect);
-    exit;
-}
-
+// Redirect berdasarkan role (eksplisit)
 if ($_SESSION['role'] === 'admin') {
     header("Location: ../admin/dashboard.php");
     exit;
 }
-header("Location: ../mahasiswa/dashboard.php");
+
+if ($_SESSION['role'] === 'mahasiswa') {
+    // kalau ada redirect, boleh balik ke tujuan awal
+    if ($redirect !== '') {
+        header("Location: " . $redirect);
+        exit;
+    }
+
+    // default mahasiswa
+    header("Location: ../mahasiswa/dashboard.php");
+    exit;
+}
+
+// Kalau role tidak dikenal (safety)
+session_unset();
+session_destroy();
+header("Location: login.php?err=role");
 exit;
-?>
