@@ -1,11 +1,17 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . "/../config/koneksi.php";
+require_once __DIR__ . '/../config/koneksi.php';
+
+// dashboard tetap publik, tapi admin diarahkan ke area admin
+if (!empty($_SESSION['role']) && $_SESSION['role'] === 'admin') {
+    header('Location: ' . $BASE . 'admin/dashboard.php');
+    exit;
+}
 
 $pageTitle = "Home";
 $activeNav = "home";
-require_once __DIR__ . "/../templates/header.php";
+require_once __DIR__ . '/../templates/header.php';
 
 /* HERO IMAGE */
 $heroImages = query("SELECT foto FROM ruangan WHERE foto IS NOT NULL AND foto != '' ORDER BY id")->fetchAll();

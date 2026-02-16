@@ -5,12 +5,12 @@ if (session_status() === PHP_SESSION_NONE) session_start();
 $activeAdmin = $activeAdmin ?? "dashboard";
 
 $A = [
-  "dashboard" => "/admin/dashboard.php",
-  "ruangan"   => "/admin/ruangan.php",
-  "user"      => "/admin/user.php",
-  "approve"   => "/admin/approve.php",
-  "laporan"   => "/admin/laporan.php",
-  "logout"    => "/auth/logout.php",
+  "dashboard" => "dashboard.php",
+  "ruangan"   => "ruangan.php",
+  "user"      => "kelola_user.php",
+  "approve"   => "persetujuan.php",
+  "laporan"   => "laporan.php",
+  "logout"    => "../auth/logout.php",
 ];
 
 if (!function_exists('aactive')) {
