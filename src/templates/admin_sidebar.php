@@ -63,3 +63,6 @@ if (!function_exists('aactive')) {
 </aside>
 
 <div class="asb-overlay" id="asbOverlay" aria-hidden="true"></div>
+
+<div class="wrap" style="background: transparent; max-width: none; padding: 0;">
+  <main class="admin-main">
