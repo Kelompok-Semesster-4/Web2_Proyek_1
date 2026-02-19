@@ -395,7 +395,7 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
     function toggleProdiField(mode) {
         const roleSelect = document.getElementById(mode + 'Role');
         const prodiField = document.getElementById(mode + 'ProdiField');
-        
+
         if (roleSelect.value === 'mahasiswa') {
             prodiField.style.display = 'block';
         } else {
@@ -411,7 +411,7 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
         document.getElementById('editRole').value = role;
         document.getElementById('editProdi').value = prodi;
         document.getElementById('editPassword').value = '';
-        
+
         // Toggle prodi field
         toggleProdiField('edit');
     }
@@ -422,14 +422,14 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
         document.getElementById('detailUsername').textContent = username;
         document.getElementById('detailProdi').textContent = prodi || '-';
         document.getElementById('detailCreated').textContent = created;
-        
+
         // Set role badge
         if (role === 'admin') {
             document.getElementById('detailRole').innerHTML = '<span class="badge" style="background: linear-gradient(135deg, #667eea, #764ba2);"><i class="bi bi-shield-fill-check me-1"></i>Admin</span>';
         } else {
             document.getElementById('detailRole').innerHTML = '<span class="badge" style="background: linear-gradient(135deg, #0dcaf0, #0aa2c0);"><i class="bi bi-person-fill me-1"></i>Mahasiswa</span>';
         }
-        
+
         // Show modal
         const modal = new bootstrap.Modal(document.getElementById('modalViewDetail'));
         modal.show();

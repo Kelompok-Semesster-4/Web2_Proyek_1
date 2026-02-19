@@ -76,7 +76,7 @@ try {
 
         case 'delete':
             $id = (int)($_GET['id'] ?? 0);
-            
+
             if (!$id) {
                 throw new Exception("ID tidak valid!");
             }
