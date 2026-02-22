@@ -530,20 +530,20 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     const ruanganPhotos = <?php echo json_encode(
-        $ruanganPhotos,
-        JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT
-    ); ?>;
+                                $ruanganPhotos,
+                                JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT
+                            ); ?>;
 
     // Initialize Bootstrap tooltips
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl);
         });
     });
 
     // Search functionality
-    document.getElementById('searchInput').addEventListener('keyup', function () {
+    document.getElementById('searchInput').addEventListener('keyup', function() {
         const searchValue = this.value.toLowerCase();
         const tableRows = document.querySelectorAll('#tableRuangan tbody tr');
 
@@ -562,7 +562,7 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
         const file = event.target.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = function (e) {
+            reader.onload = function(e) {
                 document.getElementById('addCoverPreview').src = e.target.result;
                 document.getElementById('addCoverPreviewContainer').style.display = 'block';
             };
@@ -575,7 +575,7 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
         const file = event.target.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = function (e) {
+            reader.onload = function(e) {
                 document.getElementById('editCoverPreview').src = e.target.result;
                 document.getElementById('editCoverPreviewContainer').style.display = 'block';
             };
@@ -584,7 +584,10 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
     }
 
     function renderExistingFotos(id) {
-        const data = ruanganPhotos[id] || { cover: [], detail: [] };
+        const data = ruanganPhotos[id] || {
+            cover: [],
+            detail: []
+        };
         const coverWrap = document.getElementById('editExistingCover');
         const detailWrap = document.getElementById('editExistingDetail');
 
@@ -645,7 +648,10 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
         document.getElementById('detailKapasitas').textContent = kapasitas ? kapasitas + ' orang' : '-';
         document.getElementById('detailDeskripsi').textContent = deskripsi || 'Tidak ada deskripsi';
         const listWrap = document.getElementById('detailFotoList');
-        const data = ruanganPhotos[id] || { cover: [], detail: [] };
+        const data = ruanganPhotos[id] || {
+            cover: [],
+            detail: []
+        };
 
         if (foto) {
             document.getElementById('detailFoto').src = '../uploads/ruangan/' + foto;
@@ -686,16 +692,16 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
     }
 
     // Reset add form when modal is closed
-    document.getElementById('modalAddRuangan').addEventListener('hidden.bs.modal', function () {
+    document.getElementById('modalAddRuangan').addEventListener('hidden.bs.modal', function() {
         this.querySelector('form').reset();
         document.getElementById('addCoverPreviewContainer').style.display = 'none';
     });
 
     // Auto-dismiss alerts after 5 seconds
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         const alerts = document.querySelectorAll('.alert:not(.alert-permanent)');
-        alerts.forEach(function (alert) {
-            setTimeout(function () {
+        alerts.forEach(function(alert) {
+            setTimeout(function() {
                 const bsAlert = new bootstrap.Alert(alert);
                 bsAlert.close();
             }, 5000);
@@ -703,158 +709,4 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
     });
 </script>
 
-<style>
-    /* ================= HEADER ================= */
-    .kelola-header {
-        background: linear-gradient(135deg, #2d3748, #1a202c);
-        border-radius: 16px;
-        padding: 26px 34px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        box-shadow: 0 6px 24px rgba(0, 0, 0, .25);
-        border: 1px solid rgba(255, 255, 255, .08);
-    }
-
-    .kelola-header h1 {
-        margin: 0;
-        color: #fff;
-        font-size: 30px;
-        font-weight: 700;
-    }
-
-    .btn-tambah {
-        background: linear-gradient(135deg, #22c55e, #16a34a);
-        color: #fff;
-        border: none;
-        border-radius: 10px;
-        padding: 12px 30px;
-        font-weight: 600;
-        transition: .25s;
-    }
-
-    .btn-tambah:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 18px rgba(34, 197, 94, .35);
-    }
-
-    /* ================= TABLE ================= */
-
-    #tableRuangan {
-        border-collapse: separate;
-        border-spacing: 0;
-    }
-
-    #tableRuangan thead th {
-        font-size: 12px;
-        letter-spacing: .6px;
-        color: #475569;
-        border-bottom: 1px solid #e5e7eb;
-        background: linear-gradient(to right, #f8fafc, #eef2f7);
-    }
-
-    #tableRuangan tbody td {
-        padding: 14px 12px;
-        border-bottom: 1px solid #eef2f7;
-        vertical-align: middle;
-    }
-
-    /* column separator */
-    #tableRuangan th,
-    #tableRuangan td {
-        border-right: 1px solid #e5e7eb;
-    }
-
-    #tableRuangan th:last-child,
-    #tableRuangan td:last-child {
-        border-right: none;
-    }
-
-    /* ===== HOVER ROW (FIXED) ===== */
-    #tableRuangan tbody tr {
-        transition: background .15s ease;
-    }
-
-    #tableRuangan tbody tr:hover td {
-        background: #f1f5f9;
-    }
-
-    /* ================= BADGE & BUTTON ALIGNMENT (PIXEL PERFECT) ================= */
-
-    /* base height semua label */
-    #tableRuangan .badge,
-    #tableRuangan .btn,
-    .badge-number {
-        height: 34px;
-        line-height: 34px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0 16px;
-        font-size: 13px;
-        font-weight: 600;
-        border-radius: 8px;
-    }
-
-    /* bootstrap badge baseline correction */
-    #tableRuangan .badge {
-        transform: translateY(-1px);
-    }
-
-    /* nomor */
-    .badge-number {
-        width: 38px;
-        background: #9aa1a9;
-        color: #fff;
-    }
-
-    /* GEDUNG */
-    #tableRuangan td:nth-child(3) .badge {
-        min-width: 90px;
-    }
-
-    /* KAPASITAS */
-    #tableRuangan td:nth-child(4) .badge {
-        min-width: 110px;
-    }
-
-    /* tombol */
-    #tableRuangan .btn {
-        min-width: 90px;
-        box-shadow: 0 8px 18px rgba(0, 0, 0, .18);
-        transition: .2s;
-        color: #fff;
-    }
-
-    /* warna tombol */
-    #tableRuangan .btn-info {
-        background: linear-gradient(135deg, #22b8cf, #0ea5b7) !important;
-    }
-
-    #tableRuangan .btn-warning {
-        background: linear-gradient(135deg, #ffbe0b, #ff9800) !important;
-    }
-
-    #tableRuangan .btn-danger {
-        background: linear-gradient(135deg, #ef4444, #dc2626) !important;
-    }
-
-    /* hover tombol */
-    #tableRuangan .btn:hover {
-        transform: translateY(-1px);
-    }
-
-    /* hilangkan teks hitam saat hover */
-    #tableRuangan .btn-info:hover,
-    #tableRuangan .btn-info:focus,
-    #tableRuangan .btn-info:active {
-        color: #fff !important;
-    }
-
-    /* spacing tombol */
-    #tableRuangan td:last-child .d-flex {
-        gap: 10px;
-        align-items: center;
-    }
-</style>
 <?php require_once __DIR__ . "/../templates/footer.php"; ?>
