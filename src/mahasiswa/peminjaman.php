@@ -11,27 +11,34 @@ requireRole('mahasiswa');
 $pageTitle = "Peminjaman";
 $activeNav = "peminjaman";
 
-$userId = (int)($_SESSION['user_id'] ?? 0);
+$userId = (int) ($_SESSION['user_id'] ?? 0);
 
 $success = '';
 $error = '';
 
-// --- Handle CANCEL (hapus tiket jika masih Menunggu) ---
+// --- Handle CANCEL (batalkan pengajuan yang masih Menunggu) ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'cancel') {
-    $id = (int)($_POST['peminjaman_id'] ?? 0);
+    $id = (int) ($_POST['peminjaman_id'] ?? 0);
 
     if ($id <= 0) {
         $error = "ID peminjaman tidak valid.";
     } else {
-        // Hapus hanya jika milik user ini dan status masih Menunggu (1)
+        // BATALKAN: ubah status jadi Dibatalkan (5)
         $stmt = query(
-            "DELETE FROM peminjaman
+            "UPDATE peminjaman
+             SET status_id = 5,
+                 catatan_admin = IFNULL(NULLIF(catatan_admin,''), 'Dibatalkan oleh mahasiswa')
              WHERE id = ? AND user_id = ? AND status_id = 1",
             [$id, $userId]
         );
 
         if ($stmt->rowCount() > 0) {
-            $success = "Pengajuan berhasil dibatalkan (dihapus dari antrian).";
+            query(
+                "INSERT INTO log_status (peminjaman_id, status_id, diubah_oleh, catatan)
+                 VALUES (?, 5, ?, 'Dibatalkan oleh mahasiswa')",
+                [$id, $userId]
+            );
+            $success = "Pengajuan berhasil dibatalkan.";
         } else {
             $error = "Gagal membatalkan. Pastikan status masih Menunggu dan milik Anda.";
         }
@@ -40,19 +47,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'cance
 
 // --- Handle CREATE (ajukan peminjaman) ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'create') {
-    $ruanganId      = (int)($_POST['ruangan_id'] ?? 0);
-    $namaKegiatan   = trim($_POST['nama_kegiatan'] ?? '');
-    $tanggal        = trim($_POST['tanggal'] ?? '');
-    $jamMulai       = trim($_POST['jam_mulai'] ?? '');
-    $jamSelesai     = trim($_POST['jam_selesai'] ?? '');
-    $jumlahPeserta  = ($_POST['jumlah_peserta'] ?? '') === '' ? null : (int)$_POST['jumlah_peserta'];
+    $ruanganId = (int) ($_POST['ruangan_id'] ?? 0);
+    $namaKegiatan = trim($_POST['nama_kegiatan'] ?? '');
+    $tanggal = trim($_POST['tanggal'] ?? '');
+    $jamMulai = trim($_POST['jam_mulai'] ?? '');
+    $jamSelesai = trim($_POST['jam_selesai'] ?? '');
+    $jumlahPeserta = ($_POST['jumlah_peserta'] ?? '') === '' ? null : (int) $_POST['jumlah_peserta'];
 
     // Validasi minimal
-    if ($ruanganId <= 0) $error = "Ruangan wajib dipilih.";
-    else if ($namaKegiatan === '') $error = "Nama kegiatan wajib diisi.";
-    else if ($tanggal === '') $error = "Tanggal wajib diisi.";
-    else if ($jamMulai === '' || $jamSelesai === '') $error = "Jam mulai & jam selesai wajib diisi.";
-    else if ($jamMulai >= $jamSelesai) $error = "Jam mulai harus lebih kecil dari jam selesai.";
+    if ($ruanganId <= 0)
+        $error = "Ruangan wajib dipilih.";
+    else if ($namaKegiatan === '')
+        $error = "Nama kegiatan wajib diisi.";
+    else if ($tanggal === '')
+        $error = "Tanggal wajib diisi.";
+    else if ($jamMulai === '' || $jamSelesai === '')
+        $error = "Jam mulai & jam selesai wajib diisi.";
+    else if ($jamMulai >= $jamSelesai)
+        $error = "Jam mulai harus lebih kecil dari jam selesai.";
 
     // Pastikan format tanggal benar (YYYY-MM-DD)
     if ($error === '' && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $tanggal)) {
@@ -82,7 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'creat
         if ($_FILES['surat']['error'] !== UPLOAD_ERR_OK) {
             $error = "Upload surat gagal.";
         } else {
-            $allowed = ['pdf','jpg','jpeg','png'];
+            $allowed = ['pdf', 'jpg', 'jpeg', 'png'];
             $ext = strtolower(pathinfo($_FILES['surat']['name'], PATHINFO_EXTENSION));
             if (!in_array($ext, $allowed, true)) {
                 $error = "Format surat harus PDF/JPG/PNG.";
@@ -100,17 +112,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'creat
         }
     }
 
-    // Insert peminjaman (status default Menunggu / 1)
     if ($error === '') {
         query(
             "INSERT INTO peminjaman
-             (user_id, ruangan_id, nama_kegiatan, tanggal, jam_mulai, jam_selesai, jumlah_peserta, surat, status_id)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)",
+            (user_id, ruangan_id, nama_kegiatan, tanggal, jam_mulai, jam_selesai, jumlah_peserta, surat, status_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)",
             [$userId, $ruanganId, $namaKegiatan, $tanggal, $jamMulai, $jamSelesai, $jumlahPeserta, $suratFilename]
         );
-        $success = "Pengajuan berhasil dibuat dan masuk antrian (Menunggu).";
 
-        // reset form values (opsional)
+        $peminjamanId = (int) db()->lastInsertId();
+
+        query(
+            "INSERT INTO log_status (peminjaman_id, status_id, diubah_oleh, catatan)
+            VALUES (?, ?, ?, ?)",
+            [$peminjamanId, 1, $userId, 'Pengajuan dibuat oleh mahasiswa']
+        );
+
+        $success = "Pengajuan berhasil dibuat dan masuk antrian (Menunggu).";
         $_POST = [];
     }
 }
@@ -156,8 +174,7 @@ require_once __DIR__ . "/../templates/header.php";
                         <select name="ruangan_id" class="form-select" required>
                             <option value="">-- Pilih Ruangan --</option>
                             <?php foreach ($ruanganList as $r): ?>
-                                <option value="<?= (int)$r['id'] ?>"
-                                    <?= ((int)($_POST['ruangan_id'] ?? 0) === (int)$r['id']) ? 'selected' : '' ?>>
+                                <option value="<?= (int) $r['id'] ?>" <?= ((int) ($_POST['ruangan_id'] ?? 0) === (int) $r['id']) ? 'selected' : '' ?>>
                                     <?= e($r['gedung'] . ' - ' . $r['nama_ruangan'] . ' (Kapasitas: ' . ($r['kapasitas'] ?? '-') . ')') ?>
                                 </option>
                             <?php endforeach; ?>
@@ -167,31 +184,31 @@ require_once __DIR__ . "/../templates/header.php";
                     <div class="col-md-6">
                         <label class="form-label">Nama Kegiatan</label>
                         <input type="text" name="nama_kegiatan" class="form-control"
-                               value="<?= e($_POST['nama_kegiatan'] ?? '') ?>" required>
+                            value="<?= e($_POST['nama_kegiatan'] ?? '') ?>" required>
                     </div>
 
                     <div class="col-md-4">
                         <label class="form-label">Tanggal</label>
-                        <input type="date" name="tanggal" class="form-control"
-                               value="<?= e($_POST['tanggal'] ?? '') ?>" required>
+                        <input type="date" name="tanggal" class="form-control" value="<?= e($_POST['tanggal'] ?? '') ?>"
+                            required>
                     </div>
 
                     <div class="col-md-4">
                         <label class="form-label">Jam Mulai</label>
                         <input type="time" name="jam_mulai" class="form-control"
-                               value="<?= e($_POST['jam_mulai'] ?? '') ?>" required>
+                            value="<?= e($_POST['jam_mulai'] ?? '') ?>" required>
                     </div>
 
                     <div class="col-md-4">
                         <label class="form-label">Jam Selesai</label>
                         <input type="time" name="jam_selesai" class="form-control"
-                               value="<?= e($_POST['jam_selesai'] ?? '') ?>" required>
+                            value="<?= e($_POST['jam_selesai'] ?? '') ?>" required>
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label">Jumlah Peserta (opsional)</label>
                         <input type="number" name="jumlah_peserta" class="form-control" min="1"
-                               value="<?= e($_POST['jumlah_peserta'] ?? '') ?>">
+                            value="<?= e($_POST['jumlah_peserta'] ?? '') ?>">
                     </div>
 
                     <div class="col-md-6">
@@ -222,40 +239,44 @@ require_once __DIR__ . "/../templates/header.php";
                     </tr>
                 </thead>
                 <tbody>
-                <?php if (!$riwayat): ?>
-                    <tr><td colspan="8" class="text-center">Belum ada pengajuan.</td></tr>
-                <?php else: ?>
-                    <?php foreach ($riwayat as $i => $p): ?>
+                    <?php if (!$riwayat): ?>
                         <tr>
-                            <td><?= $i + 1 ?></td>
-                            <td><?= e($p['gedung'] . ' - ' . $p['nama_ruangan']) ?></td>
-                            <td><?= e($p['tanggal']) ?></td>
-                            <td><?= e(substr($p['jam_mulai'],0,5) . ' - ' . substr($p['jam_selesai'],0,5)) ?></td>
-                            <td><?= e($p['nama_kegiatan']) ?></td>
-                            <td><?= e($p['nama_status']) ?></td>
-                            <td>
-                                <?php if (!empty($p['catatan_admin'])): ?>
-                                    <?= e($p['catatan_admin']) ?>
-                                <?php else: ?>
-                                    <span class="text-muted">-</span>
-                                <?php endif; ?>
-                            </td>
-                            <td class="text-center" style="overflow:hidden;">
-                                <?php if ((int)$p['status_id'] === 1): ?>
-                                    <form method="POST" onsubmit="return confirm('Batalkan pengajuan ini?');" style="display:inline-block; max-width:100%;">
-                                        <input type="hidden" name="action" value="cancel">
-                                        <input type="hidden" name="peminjaman_id" value="<?= (int)$p['id'] ?>">
-                                        <button class="btn btn-sm btn-danger" style="display:inline-block; width:auto; max-width:100%; padding:.35rem .9rem; border-radius:999px; white-space:nowrap;">
-                                            Batalkan
-                                        </button>
-                                    </form>
+                            <td colspan="8" class="text-center">Belum ada pengajuan.</td>
+                        </tr>
+                    <?php else: ?>
+                        <?php foreach ($riwayat as $i => $p): ?>
+                            <tr>
+                                <td><?= $i + 1 ?></td>
+                                <td><?= e($p['gedung'] . ' - ' . $p['nama_ruangan']) ?></td>
+                                <td><?= e($p['tanggal']) ?></td>
+                                <td><?= e(substr($p['jam_mulai'], 0, 5) . ' - ' . substr($p['jam_selesai'], 0, 5)) ?></td>
+                                <td><?= e($p['nama_kegiatan']) ?></td>
+                                <td><?= e($p['nama_status']) ?></td>
+                                <td>
+                                    <?php if (!empty($p['catatan_admin'])): ?>
+                                        <?= e($p['catatan_admin']) ?>
                                     <?php else: ?>
                                         <span class="text-muted">-</span>
-                                        <?php endif; ?>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="text-center" style="overflow:hidden;">
+                                    <?php if ((int) $p['status_id'] === 1): ?>
+                                        <form method="POST" onsubmit="return confirm('Batalkan pengajuan ini?');"
+                                            style="display:inline-block; max-width:100%;">
+                                            <input type="hidden" name="action" value="cancel">
+                                            <input type="hidden" name="peminjaman_id" value="<?= (int) $p['id'] ?>">
+                                            <button class="btn btn-sm btn-danger"
+                                                style="display:inline-block; width:auto; max-width:100%; padding:.35rem .9rem; border-radius:999px; white-space:nowrap;">
+                                                Batalkan
+                                            </button>
+                                        </form>
+                                    <?php else: ?>
+                                        <span class="text-muted">-</span>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
