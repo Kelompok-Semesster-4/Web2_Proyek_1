@@ -160,14 +160,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'creat
 }
 
 // Data ruangan untuk dropdown
-$ruanganList = query("SELECT id, nama_ruangan, gedung, kapasitas FROM ruangan ORDER BY gedung, nama_ruangan")->fetchAll();
+$ruanganList = query(
+    "SELECT r.id, r.nama_ruangan, r.kapasitas, g.nama_gedung AS gedung
+     FROM ruangan r
+     LEFT JOIN lantai l ON l.id = r.lantai_id
+     LEFT JOIN gedung g ON g.id = l.gedung_id
+     ORDER BY g.nama_gedung, r.nama_ruangan"
+)->fetchAll();
 $selectedRuanganId = (int) ($_POST['ruangan_id'] ?? $preselectRuanganId);
 
 // Riwayat pengajuan user
 $riwayat = query(
-    "SELECT p.*, r.nama_ruangan, r.gedung, sp.nama_status
+    "SELECT p.*, r.nama_ruangan, g.nama_gedung AS gedung, sp.nama_status
      FROM peminjaman p
      JOIN ruangan r ON r.id = p.ruangan_id
+     LEFT JOIN lantai l ON l.id = r.lantai_id
+     LEFT JOIN gedung g ON g.id = l.gedung_id
      JOIN status_peminjaman sp ON sp.id = p.status_id
      WHERE p.user_id = ?
      ORDER BY p.created_at DESC",

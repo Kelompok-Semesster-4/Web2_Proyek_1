@@ -19,7 +19,13 @@ $heroImg = query("
 ")->fetchColumn();
 
 /* ambil semua ruangan */
-$ruangans = query("SELECT * FROM ruangan ORDER BY nama_ruangan")->fetchAll();
+$ruangans = query(
+   "SELECT r.*, g.nama_gedung AS gedung, l.nomor AS Lantai
+    FROM ruangan r
+    LEFT JOIN lantai l ON l.id = r.lantai_id
+    LEFT JOIN gedung g ON g.id = l.gedung_id
+    ORDER BY r.nama_ruangan"
+)->fetchAll();
 
 require_once __DIR__ . "/../templates/header.php";
 ?>
