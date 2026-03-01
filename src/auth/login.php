@@ -25,10 +25,12 @@ $totalKapas = '—';
 try {
   $row = query("
       SELECT
-        COUNT(*)                           AS total_ruangan,
-        COUNT(DISTINCT gedung)             AS total_gedung,
-        COALESCE(SUM(kapasitas), 0)        AS total_kapasitas
-      FROM ruangan
+        COUNT(r.id)                         AS total_ruangan,
+        COUNT(DISTINCT g.id)                AS total_gedung,
+        COALESCE(SUM(r.kapasitas), 0)       AS total_kapasitas
+      FROM ruangan r
+      LEFT JOIN lantai l ON l.id = r.lantai_id
+      LEFT JOIN gedung g ON g.id = l.gedung_id
   ")->fetch();
 
   if ($row) {

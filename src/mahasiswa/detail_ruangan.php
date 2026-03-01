@@ -9,7 +9,14 @@ requireRole('mahasiswa');
 $id = (int)($_GET['id'] ?? 0);
 if ($id <= 0) die("ID tidak valid");
 
-$ruangan = query("SELECT * FROM ruangan WHERE id = ?", [$id])->fetch();
+$ruangan = query(
+  "SELECT r.*, g.nama_gedung AS gedung, l.nomor AS Lantai
+   FROM ruangan r
+   LEFT JOIN lantai l ON l.id = r.lantai_id
+   LEFT JOIN gedung g ON g.id = l.gedung_id
+   WHERE r.id = ?",
+  [$id]
+)->fetch();
 if (!$ruangan) die("Ruangan tidak ditemukan");
 
 $activeNav = 'ruangan';

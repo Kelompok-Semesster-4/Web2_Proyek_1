@@ -25,24 +25,27 @@ $params = [];
 $where = [];
 
 if ($gedung) {
-   $where[] = "ruangan.gedung = ?";
+   $where[] = "g.nama_gedung = ?";
    $params[] = $gedung;
 }
 
 if ($tgl_awal && $tgl_akhir) {
    $where[] = "NOT EXISTS (
         SELECT 1 FROM peminjaman
-        WHERE peminjaman.ruangan_id = ruangan.id
+   WHERE peminjaman.ruangan_id = r.id
         AND tanggal BETWEEN ? AND ?
     )";
    $params[] = $tgl_awal;
    $params[] = $tgl_akhir;
 }
 
-$sql = "SELECT * FROM ruangan";
+$sql = "SELECT r.*, g.nama_gedung AS gedung, l.nomor AS Lantai
+   FROM ruangan r
+   LEFT JOIN lantai l ON l.id = r.lantai_id
+   LEFT JOIN gedung g ON g.id = l.gedung_id";
 if ($where)
    $sql .= " WHERE " . implode(" AND ", $where);
-$sql .= " ORDER BY nama_ruangan";
+$sql .= " ORDER BY r.nama_ruangan";
 
 $ruangan = query($sql, $params)->fetchAll();
 
