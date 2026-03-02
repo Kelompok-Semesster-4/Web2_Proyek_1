@@ -43,6 +43,18 @@ $peminjaman = query(
     WHERE tanggal = CURDATE()"
 )->fetchAll()[0];
 
+$most_borrowed = query(
+    "SELECT r.*, g.nama_gedung AS gedung, l.nomor AS Lantai, COUNT(p.id) AS j_pinjaman
+    FROM ruangan r
+    LEFT JOIN lantai l ON l.id = r.lantai_id
+    LEFT JOIN gedung g ON g.id = l.gedung_id
+    JOIN peminjaman p ON p.ruangan_id = r.id
+    WHERE YEARWEEK(p.tanggal, 1) = YEARWEEK(CURDATE(), 1) AND p.status_id = 2
+    GROUP BY r.id, r.nama_ruangan, g.nama_gedung, l.nomor
+    ORDER BY j_pinjaman DESC
+    LIMIT 3"
+)->fetchAll();
+
 function renderProgressBar($max, $segments) {
     $html = '<div class="progress mb-3" style="height: 25px;">';
     $accValue = 0;
@@ -105,11 +117,12 @@ $totalMahasiswa = $users['total_mahasiswa'];
 ?>
 
 <div class="container-fluid p-2">
-    <div class="row">
+    <div class="row mb-3">
         <div class="col-md-4">
             <div class="card h-100">
                 <div class="card-body">
                     <h5 class="card-title">
+                        <i class="bi bi-door-closed" style="margin-right: 3px"></i>
                         Ruangan 
                         <a href="./ruangan.php">
                             <i class="bi bi-arrow-right-circle"></i>
@@ -141,6 +154,7 @@ $totalMahasiswa = $users['total_mahasiswa'];
             <div class="card h-100">
                 <div class="card-body">
                     <h5 class="card-title">
+                        <i class="bi bi-calendar2-check" style="margin-right: 3px"></i>
                         Peminjaman
                         <a href="./persetujuan.php">
                             <i class="bi bi-arrow-right-circle"></i>
@@ -177,6 +191,7 @@ $totalMahasiswa = $users['total_mahasiswa'];
             <div class="card h-100">
                 <div class="card-body">
                     <h5 class="card-title">
+                        <i class="bi bi-person-fill" style="margin-right: 3px"></i>
                         Pengguna
                         <a href="./kelola_user.php">
                             <i class="bi bi-arrow-right-circle"></i>
@@ -196,6 +211,45 @@ $totalMahasiswa = $users['total_mahasiswa'];
                         <span class="text-info"><?= $totalMahasiswa ?> mahasiswa</span>
                     </p>
 
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-3">
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-door-open-fill" style="margin-right: 3px"></i>
+                        Ruangan Paling Sering Dipinjam
+                    </h5>
+                    <div class="container mb-3">
+                        <?php if (!$most_borrowed): ?>
+                            <div class="text-center text-black mt-5">
+                                <h5>Belum ada data peminjaman</h5>
+                            </div>
+                        <?php else: ?>
+                            <div class="room-grid">
+                                <?php foreach ($most_borrowed as $r): ?>
+                                    <div class="room-item">
+                                        <div class="room-card">
+                                            <div class="room-img">
+                                                <img src="<?= $BASE ?>/uploads/ruangan/<?= e($r['foto'] ?: 'noimage.png') ?>" alt="<?= e($r['nama_ruangan']) ?>">
+                                            </div>
+                                            <div class="room-body">
+                                                <div class="room-title"><?= e($r['nama_ruangan']) ?></div>
+                                                <div class="room-meta">
+                                                    Lokasi : <?= e($r['gedung'] ?: '-') ?><br>
+                                                    Lantai : <?= e($r['Lantai'] ?? ($r['lantai'] ?? '-')) ?><br>
+                                                    Kapasitas : <?= e($r['kapasitas'] ?? 0) ?> orang
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </div>
         </div>
