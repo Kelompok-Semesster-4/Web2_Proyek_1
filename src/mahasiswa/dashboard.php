@@ -5,8 +5,8 @@ require_once __DIR__ . '/../config/koneksi.php';
 
 // dashboard tetap publik, tapi admin diarahkan ke area admin
 if (!empty($_SESSION['role']) && $_SESSION['role'] === 'admin') {
-    header('Location: ' . $BASE . 'admin/dashboard.php');
-    exit;
+   header('Location: ' . $BASE . 'admin/dashboard.php');
+   exit;
 }
 
 $pageTitle = "Home";
@@ -49,7 +49,7 @@ $sql .= " ORDER BY r.nama_ruangan";
 
 $ruangan = query($sql, $params)->fetchAll();
 
-$gedungList = query("SELECT DISTINCT nama_gedung from gedung order by id")->fetchAll();
+$gedungList = query("SELECT id, nama_gedung FROM gedung ORDER BY id")->fetchAll();
 ?>
 
 <!-- HERO -->

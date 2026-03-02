@@ -326,9 +326,10 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
                                 <i class="bi bi-layers me-1" style="color: #22c55e;"></i>Lantai
                                 <span class="text-danger">*</span>
                             </label>
-                            <select class="form-select" name="lantai_id" id="addLantaiSelect" required>
-                                <option value="">-- Pilih Lantai --</option>
+                            <select class="form-select" name="lantai_id" id="addLantaiSelect" required disabled>
+                                <option value="">-- Pilih Gedung Terlebih Dahulu --</option>
                             </select>
+                            <small class="text-muted">Pilih gedung terlebih dahulu</small>
                         </div>
                     </div>
 
@@ -460,9 +461,10 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
                                 <i class="bi bi-layers me-1" style="color: #f59e0b;"></i>Lantai
                                 <span class="text-danger">*</span>
                             </label>
-                            <select class="form-select" name="lantai_id" id="editLantaiSelect" required>
-                                <option value="">-- Pilih Lantai --</option>
+                            <select class="form-select" name="lantai_id" id="editLantaiSelect" required disabled>
+                                <option value="">-- Pilih Gedung Terlebih Dahulu --</option>
                             </select>
+                            <small class="text-muted">Pilih gedung terlebih dahulu</small>
                         </div>
                     </div>
 
@@ -686,19 +688,26 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
 
         const gid = String(gedungId || '');
         const lantaiList = gid && lantaiMapByGedung[gid] ? lantaiMapByGedung[gid] : [];
-        selectEl.innerHTML = '<option value="">-- Pilih Lantai --</option>';
-
-        lantaiList.forEach((item) => {
-            const option = document.createElement('option');
-            option.value = String(item.id);
-            option.textContent = 'Lantai ' + item.nomor;
-            if (String(selectedLantaiId) === String(item.id)) {
-                option.selected = true;
-            }
-            selectEl.appendChild(option);
-        });
-
-        selectEl.disabled = !gid || lantaiList.length === 0;
+        
+        if (!gid) {
+            selectEl.innerHTML = '<option value="">-- Pilih Gedung Terlebih Dahulu --</option>';
+            selectEl.disabled = true;
+        } else if (lantaiList.length === 0) {
+            selectEl.innerHTML = '<option value="">-- Tidak Ada Lantai Tersedia --</option>';
+            selectEl.disabled = true;
+        } else {
+            selectEl.innerHTML = '<option value="">-- Pilih Lantai --</option>';
+            lantaiList.forEach((item) => {
+                const option = document.createElement('option');
+                option.value = String(item.id);
+                option.textContent = 'Lantai ' + item.nomor;
+                if (String(selectedLantaiId) === String(item.id)) {
+                    option.selected = true;
+                }
+                selectEl.appendChild(option);
+            });
+            selectEl.disabled = false;
+        }
     }
 
     // Initialize Bootstrap tooltips
