@@ -180,6 +180,7 @@ $adminActivity = query(
      FROM log_status ls
      JOIN users u ON u.id = ls.diubah_oleh
      WHERE ls.status_id IN (2,3)
+             AND u.role = 'admin'
        AND ls.waktu BETWEEN ? AND ?
      GROUP BY u.id, u.nama
      ORDER BY
