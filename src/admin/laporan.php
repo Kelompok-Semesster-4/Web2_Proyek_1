@@ -454,7 +454,7 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">
-                            <thead style="background: linear-gradient(to right, #f8f9fa, #e9ecef);">
+                            <thead style="background: linear-gradient(to right, #f8f9fa, #e9ecef); white-space: nowrap;">
                                 <tr>
                                     <th style="width: 50px; padding: 15px 10px;" class="text-center">
                                         <i class="bi bi-hash"></i>
@@ -524,7 +524,7 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">
-                            <thead style="background: linear-gradient(to right, #f8f9fa, #e9ecef);">
+                            <thead style="background: linear-gradient(to right, #f8f9fa, #e9ecef); white-space: nowrap;">
                                 <tr>
                                     <th style="padding: 15px;">
                                         <i class="bi bi-calendar-date me-1"></i>Tanggal
@@ -598,7 +598,7 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
                 <div class="card-body p-0">
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">
-                            <thead style="background: linear-gradient(to right, #f8f9fa, #e9ecef);">
+                            <thead style="background: linear-gradient(to right, #f8f9fa, #e9ecef); white-space: nowrap;">
                                 <tr>
                                     <th style="padding: 15px;">
                                         <i class="bi bi-person me-1"></i>Admin
@@ -673,7 +673,7 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
-                    <thead style="background: linear-gradient(to right, #f8f9fa, #e9ecef);">
+                    <thead style="background: linear-gradient(to right, #f8f9fa, #e9ecef); white-space: nowrap;">
                         <tr>
                             <th style="width: 50px; padding: 15px 10px;" class="text-center">
                                 <i class="bi bi-hash"></i>
