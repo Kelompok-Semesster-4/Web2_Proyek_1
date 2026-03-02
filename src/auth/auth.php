@@ -12,7 +12,17 @@ function requireLogin(): void
     global $BASE;
 
     if (!empty($_SESSION['user_id'])) {
-        return;
+        // Cek apakah user masih ada di database
+        $userId = (int) $_SESSION['user_id'];
+        $user = query("SELECT id FROM users WHERE id = ? LIMIT 1", [$userId])->fetch();
+
+        if ($user) {
+            return; // User valid, lanjutkan
+        }
+
+        // User tidak ditemukan, hapus session
+        session_unset();
+        session_destroy();
     }
 
     $current = $_SERVER['REQUEST_URI'] ?? '';
