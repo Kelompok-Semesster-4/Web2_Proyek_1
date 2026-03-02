@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 require_once __DIR__ . '/../config/koneksi.php';
@@ -78,9 +79,9 @@ $gedungList = query("SELECT id, nama_gedung FROM gedung ORDER BY id")->fetchAll(
 </section>
 
 <!-- FILTER -->
-<section class="filter-floating">
+<section class="filter-floating" id="filterSection">
    <div class="container">
-      <form class="filter-box" method="get">
+      <form class="filter-box" method="get" id="filterForm">
          <div class="row g-3 align-items-end">
 
             <div class="col-md-3">
@@ -164,5 +165,27 @@ $gedungList = query("SELECT id, nama_gedung FROM gedung ORDER BY id")->fetchAll(
       </div>
    </section>
 </div>
+
+<script>
+   // Scroll ke filter section setelah page load jika ada parameter filter
+   document.addEventListener('DOMContentLoaded', function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const hasFilter = urlParams.has('tgl_awal') || urlParams.has('tgl_akhir') || urlParams.has('gedung');
+
+      if (hasFilter) {
+         const filterSection = document.getElementById('filterSection');
+         if (filterSection) {
+            // Delay sedikit untuk memastikan page sudah render sempurna
+            setTimeout(() => {
+               const offsetTop = filterSection.offsetTop - 100; // 100px dari atas navbar
+               window.scrollTo({
+                  top: offsetTop,
+                  behavior: 'smooth'
+               });
+            }, 100);
+         }
+      }
+   });
+</script>
 
 <?php require_once __DIR__ . "/../templates/footer.php"; ?>
