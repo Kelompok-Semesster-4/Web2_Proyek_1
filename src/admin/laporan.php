@@ -415,13 +415,13 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
                         <label class="text-muted small mb-1">
                             <i class="bi bi-hourglass-split me-1"></i>Total Jam Terpakai (Status Disetujui/Selesai)
                         </label>
-                        <div class="fw-bold fs-5 text-primary"><?= e($totalJam) ?></div>
+                        <div class=" text-center fw-bold fs-5 text-primary"><?= e($totalJam) ?></div>
                     </div>
                     <div class="mb-3 p-3" style="background-color: #f8f9fa; border-radius: 8px;">
                         <label class="text-muted small mb-1">
                             <i class="bi bi-speedometer2 me-1"></i>Rata-rata Durasi
                         </label>
-                        <div class="fw-bold fs-5 text-success"><?= e($avgDurasi) ?></div>
+                        <div class=" text-center fw-bold fs-5 text-success"><?= e($avgDurasi) ?></div>
                     </div>
                     <hr>
                     <h6 class="fw-bold mb-3">
@@ -462,10 +462,10 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
                                     <th style="padding: 15px;">
                                         <i class="bi bi-door-open me-1"></i>Ruangan
                                     </th>
-                                    <th class="text-end" style="padding: 15px;">
+                                    <th class="text-center" style="padding: 15px;">
                                         <i class="bi bi-calendar-check me-1"></i>Jumlah Booking
                                     </th>
-                                    <th class="text-end" style="padding: 15px;">
+                                    <th class="text-center" style="padding: 15px;">
                                         <i class="bi bi-clock me-1"></i>Total Jam
                                     </th>
                                 </tr>
@@ -489,10 +489,10 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
                                             <td>
                                                 <span class="fw-bold"><?= e($tr['gedung'] . ' - ' . $tr['nama_ruangan']) ?></span>
                                             </td>
-                                            <td class="text-end">
+                                            <td class="text-center">
                                                 <span class="badge bg-info"><?= (int) $tr['jumlah_booking'] ?></span>
                                             </td>
-                                            <td class="text-end">
+                                            <td class="text-center">
                                                 <span class="badge bg-success"><?= e($tr['total_jam']) ?></span>
                                             </td>
                                         </tr>
@@ -562,19 +562,19 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
                                             <td>
                                                 <span class="fw-bold"><?= e(date('d M Y', strtotime($rh['tanggal']))) ?></span>
                                             </td>
-                                            <td class="text-end">
+                                            <td class="text-center">
                                                 <span class="badge bg-primary"><?= (int) $rh['total_pengajuan'] ?></span>
                                             </td>
-                                            <td class="text-end">
+                                            <td class="text-center">
                                                 <span class="badge bg-success"><?= (int) $rh['disetujui_atau_selesai'] ?></span>
                                             </td>
-                                            <td class="text-end">
+                                            <td class="text-center">
                                                 <span class="badge bg-danger"><?= (int) $rh['ditolak'] ?></span>
                                             </td>
-                                            <td class="text-end">
+                                            <td class="text-center">
                                                 <span class="badge bg-warning"><?= (int) $rh['menunggu'] ?></span>
                                             </td>
-                                            <td class="text-end">
+                                            <td class="text-center">
                                                 <span class="badge bg-secondary"><?= (int) $rh['dibatalkan'] ?></span>
                                             </td>
                                         </tr>
@@ -586,7 +586,7 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
                 </div>
             </div>
         </div>
-
+        <!--Aktivtas Admin  -->
         <div class="col-lg-5">
             <div class="card shadow border-0" style="border-radius: 15px; overflow: hidden;">
                 <div class="card-header bg-white py-3 border-bottom"
@@ -603,10 +603,10 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
                                     <th style="padding: 15px;">
                                         <i class="bi bi-person me-1"></i>Admin
                                     </th>
-                                    <th class="text-end" style="padding: 15px;">
+                                    <th class="text-center" style="padding: 15px;">
                                         <i class="bi bi-check-lg me-1"></i>Approve
                                     </th>
-                                    <th class="text-end" style="padding: 15px;">
+                                    <th class="text-center" style="padding: 15px;">
                                         <i class="bi bi-x-lg me-1"></i>Reject
                                     </th>
                                 </tr>
@@ -633,10 +633,10 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
                                                     <span class="fw-bold"><?= e($a['nama']) ?></span>
                                                 </div>
                                             </td>
-                                            <td class="text-end">
+                                            <td class="text-center">
                                                 <span class="badge bg-success"><?= (int) $a['approve_count'] ?></span>
                                             </td>
-                                            <td class="text-end">
+                                            <td class="text-center">
                                                 <span class="badge bg-danger"><?= (int) $a['reject_count'] ?></span>
                                             </td>
                                         </tr>
@@ -684,10 +684,10 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
                             <th style="padding: 15px;">
                                 <i class="bi bi-clock me-1"></i>Jam
                             </th>
-                            <th style="padding: 15px;">
+                            <th style="padding: 22px;">
                                 <i class="bi bi-door-open me-1"></i>Ruangan
                             </th>
-                            <th style="padding: 15px;">
+                            <th class="text-center" style="padding: 16px;">
                                 <i class="bi bi-person me-1"></i>Peminjam
                             </th>
                             <th style="padding: 15px;">
@@ -696,7 +696,7 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
                             <th style="padding: 15px;">
                                 <i class="bi bi-activity me-1"></i>Kegiatan
                             </th>
-                            <th class="text-end" style="padding: 15px;">
+                            <th class="text-center" style="padding: 15px;">
                                 <i class="bi bi-people me-1"></i>Peserta
                             </th>
                             <th style="padding: 15px;">
@@ -739,35 +739,35 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
                                     <td>
                                         <span class="fw-bold"><?= e(date('d M Y', strtotime($d['tanggal']))) ?></span>
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         <small class="text-muted">
                                             <?= e(substr((string) $d['jam_mulai'], 0, 5)) ?> - <?= e(substr((string) $d['jam_selesai'], 0, 5)) ?>
                                         </small>
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         <span class="fw-bold"><?= e($d['gedung'] . ' - ' . $d['nama_ruangan']) ?></span>
                                     </td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
+                                    <td class="text-center">
+                                        <div class="d-flex align-items-center justify-content-center">
                                             <div class="avatar-circle me-2" style="width: 30px; height: 30px; font-size: 0.75rem;">
                                                 <?= strtoupper(substr($d['nama_peminjam'], 0, 1)) ?>
                                             </div>
                                             <span><?= e($d['nama_peminjam']) ?></span>
                                         </div>
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         <?= $d['prodi'] ? '<small>' . e($d['prodi']) . '</small>' : '<span class="text-muted">-</span>' ?>
                                     </td>
                                     <td><?= e($d['nama_kegiatan']) ?></td>
-                                    <td class="text-end">
+                                    <td class="text-center">
                                         <span class="badge bg-info"><?= e((string) ($d['jumlah_peserta'] ?? '-')) ?></span>
                                     </td>
-                                    <td>
+                                    <td class="text-center">
                                         <span class="badge bg-<?= $badgeClass ?>">
                                             <?= e($d['nama_status']) ?>
                                         </span>
                                     </td>
-                                    <td>
+                                    <td class="text-center  ">
                                         <?php if (!empty($d['catatan_admin'])): ?>
                                             <small><?= e($d['catatan_admin']) ?></small>
                                         <?php else: ?>
