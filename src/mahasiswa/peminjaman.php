@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 require_once __DIR__ . '/../auth/auth.php';
@@ -201,17 +202,17 @@ require_once __DIR__ . "/../templates/header.php";
         <div class="card-body">
             <form method="POST" enctype="multipart/form-data">
                 <input type="hidden" name="action" value="create">
-                 <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h5 class="mb-0 fw-bold" style="color: #495057; padding-bottom: 20px;">
-                        Form Detail Peminjaman
-                    </h5>
-                </div>
-                <div class="col-md-6">
-                    <div class="input-group shadow-sm" style="border-radius: 8px; overflow: hidden;">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <h5 class="mb-0 fw-bold" style="color: #495057; padding-bottom: 20px;">
+                            Form Detail Peminjaman
+                        </h5>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="input-group shadow-sm" style="border-radius: 8px; overflow: hidden;">
+                        </div>
                     </div>
                 </div>
-            </div>
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label">Ruangan</label>
@@ -273,7 +274,7 @@ require_once __DIR__ . "/../templates/header.php";
             <div class="row align-items-center">
                 <div class="col-md-6">
                     <h5 class="mb-0 fw-bold" style="color: #495057;">
-                        <i  style="color: #22c55e;"></i>Riwayat Pengajuan
+                        <i style="color: #22c55e;"></i>Riwayat Pengajuan
                     </h5>
                 </div>
                 <div class="col-md-6">
@@ -292,7 +293,7 @@ require_once __DIR__ . "/../templates/header.php";
                 <table class="table table-hover align-middle mb-0" id="tableRiwayat">
                     <thead style="background: linear-gradient(to right, #f8f9fa, #e9ecef);">
                         <tr>
-                            <th  class="text-center" style="width: 50px; padding: 15px 10px;">
+                            <th class="text-center" style="width: 50px; padding: 15px 10px;">
                                 <i class="bi bi-hash"></i>
                             </th>
                             <th class="text-center" style="width: 20%; padding: 15px;"><i class="bi bi-door-closed me-1"></i>Ruangan</th>
@@ -352,12 +353,12 @@ require_once __DIR__ . "/../templates/header.php";
                                     </td>
                                     <td class="text-center">
                                         <?php
-                                            if ($statusId === 1) $statusBg = 'linear-gradient(135deg, #f59e0b, #d97706)';
-                                            elseif ($statusId === 2) $statusBg = 'linear-gradient(135deg, #22c55e, #16a34a)';
-                                            elseif ($statusId === 3) $statusBg = 'linear-gradient(135deg, #ef4444, #dc2626)';
-                                            elseif ($statusId === 4) $statusBg = 'linear-gradient(135deg, #6b7280, #4b5563)';
-                                            elseif ($statusId === 5) $statusBg = 'linear-gradient(135deg, #f97316, #ea580c)';
-                                            else $statusBg = 'linear-gradient(135deg, #94a3b8, #64748b)';
+                                        if ($statusId === 1) $statusBg = 'linear-gradient(135deg, #f59e0b, #d97706)';
+                                        elseif ($statusId === 2) $statusBg = 'linear-gradient(135deg, #22c55e, #16a34a)';
+                                        elseif ($statusId === 3) $statusBg = 'linear-gradient(135deg, #ef4444, #dc2626)';
+                                        elseif ($statusId === 4) $statusBg = 'linear-gradient(135deg, #6b7280, #4b5563)';
+                                        elseif ($statusId === 5) $statusBg = 'linear-gradient(135deg, #f97316, #ea580c)';
+                                        else $statusBg = 'linear-gradient(135deg, #94a3b8, #64748b)';
                                         ?>
                                         <span class="badge px-3 py-2"
                                             style="background: <?= $statusBg ?>; color: white; font-weight: 600; border-radius: 8px;">
