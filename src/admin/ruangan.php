@@ -294,9 +294,8 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form method="POST" action="proses_ruangan.php" enctype="multipart/form-data">
+            <form method="POST" action="ruangan/tambah.php" enctype="multipart/form-data">
                 <div class="modal-body p-4">
-                    <input type="hidden" name="action" value="add">
 
                     <div class="row">
                         <div class="col-md-4 mb-3">
@@ -429,9 +428,8 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form method="POST" action="proses_ruangan.php" enctype="multipart/form-data">
+            <form method="POST" action="ruangan/edit.php" enctype="multipart/form-data">
                 <div class="modal-body p-4">
-                    <input type="hidden" name="action" value="edit">
                     <input type="hidden" name="id" id="editRuanganId">
 
                     <div class="row">
@@ -688,7 +686,7 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
 
         const gid = String(gedungId || '');
         const lantaiList = gid && lantaiMapByGedung[gid] ? lantaiMapByGedung[gid] : [];
-        
+
         if (!gid) {
             selectEl.innerHTML = '<option value="">-- Pilih Gedung Terlebih Dahulu --</option>';
             selectEl.disabled = true;
@@ -968,7 +966,7 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
     // Delete ruangan with better confirmation
     function deleteRuangan(id, nama) {
         if (confirm('Apakah Anda yakin ingin menghapus ruangan "' + nama + '"?\n\nTindakan ini tidak dapat dibatalkan!')) {
-            window.location.href = 'proses_ruangan.php?action=delete&id=' + id;
+            window.location.href = 'ruangan/hapus.php?id=' + id;
         }
     }
 

@@ -195,7 +195,7 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form action="proses_user.php?action=add" method="POST">
+            <form action="user/tambah.php" method="POST">
                 <div class="modal-body p-4">
                     <div class="mb-3">
                         <label class="form-label fw-semibold">
@@ -261,7 +261,7 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
                 </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form action="proses_user.php?action=edit" method="POST">
+            <form action="user/edit.php" method="POST">
                 <input type="hidden" name="id" id="editUserId">
                 <div class="modal-body p-4">
                     <div class="mb-3">
@@ -434,7 +434,7 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
     // Delete user with confirmation
     function deleteUser(id, nama) {
         if (confirm('Apakah Anda yakin ingin menghapus user "' + nama + '"?\n\nTindakan ini tidak dapat dibatalkan!')) {
-            window.location.href = 'proses_user.php?action=delete&id=' + id;
+            window.location.href = 'user/hapus.php?id=' + id;
         }
     }
 
