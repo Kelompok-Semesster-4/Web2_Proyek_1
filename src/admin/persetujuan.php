@@ -337,5 +337,3 @@ require_once __DIR__ . '/../templates/admin_sidebar.php';
         });
     }, 5000);
 </script>
-
-<?php require_once __DIR__ . '/../templates/footer.php'; ?>

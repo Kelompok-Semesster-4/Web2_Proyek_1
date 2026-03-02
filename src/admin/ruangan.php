@@ -981,5 +981,3 @@ require_once __DIR__ . "/../templates/admin_sidebar.php";
         });
     });
 </script>
-
-<?php require_once __DIR__ . "/../templates/footer.php"; ?>
