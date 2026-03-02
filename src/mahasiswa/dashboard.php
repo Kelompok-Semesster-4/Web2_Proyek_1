@@ -70,7 +70,7 @@ $gedungList = query("SELECT DISTINCT nama_gedung from gedung order by id")->fetc
    </div>
 
    <div class="hero-content">
-      <h5>WELCOME TO RBS</h5>
+      <h5>WELCOME TO SIPERU</h5>
       <h1>Room Booking System</h1>
       <h2>Fasilkom Unsri</h2>
    </div>
