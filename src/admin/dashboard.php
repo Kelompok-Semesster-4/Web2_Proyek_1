@@ -44,17 +44,24 @@ $peminjaman = query(
 )->fetchAll()[0];
 
 $most_borrowed = query(
-    "SELECT r.*, g.nama_gedung AS gedung, l.nomor AS Lantai, COUNT(p.id) AS j_pinjaman
-    FROM ruangan r
+    "SELECT r.id, r.nama_ruangan, g.nama_gedung AS gedung,
+            COUNT(p.id) AS j_pinjaman,
+            COALESCE(SEC_TO_TIME(SUM(TIME_TO_SEC(TIMEDIFF(p.jam_selesai, p.jam_mulai)))), '00:00:00') AS total_jam
+    FROM peminjaman p
+    JOIN ruangan r ON r.id = p.ruangan_id
     LEFT JOIN lantai l ON l.id = r.lantai_id
     LEFT JOIN gedung g ON g.id = l.gedung_id
-    JOIN peminjaman p ON p.ruangan_id = r.id
     WHERE p.status_id IN (2,4)
       AND p.tanggal BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())
-    GROUP BY r.id, r.nama_ruangan, g.nama_gedung, l.nomor
+    GROUP BY r.id, r.nama_ruangan, g.nama_gedung
     ORDER BY j_pinjaman DESC
     LIMIT 3"
 )->fetchAll();
+
+foreach ($most_borrowed as &$row) {
+    $row['total_jam'] = preg_replace('/\.\d+$/', '', (string) ($row['total_jam'] ?? '00:00:00')) ?? '00:00:00';
+}
+unset($row);
 
 function renderProgressBar($max, $segments) {
     $html = '<div class="progress mb-3" style="height: 25px;">';
@@ -224,32 +231,54 @@ $totalMahasiswa = $users['total_mahasiswa'];
                         <i class="bi bi-door-open-fill" style="margin-right: 3px"></i>
                         Ruangan Paling Sering Dipinjam
                     </h5>
-                    <div class="container mb-3">
-                        <?php if (!$most_borrowed): ?>
-                            <div class="text-center text-black mt-5">
-                                <h5>Belum ada data peminjaman</h5>
-                            </div>
-                        <?php else: ?>
-                            <div class="room-grid">
-                                <?php foreach ($most_borrowed as $r): ?>
-                                    <div class="room-item">
-                                        <div class="room-card">
-                                            <div class="room-img">
-                                                <img src="<?= $BASE ?>/uploads/ruangan/<?= e($r['foto'] ?: 'noimage.png') ?>" alt="<?= e($r['nama_ruangan']) ?>">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead style="background: linear-gradient(to right, #f8f9fa, #e9ecef); white-space: nowrap;">
+                                <tr>
+                                    <th style="width: 50px; padding: 15px 10px;" class="text-center">
+                                        <i class="bi bi-hash"></i>
+                                    </th>
+                                    <th style="padding: 15px;">
+                                        <i class="bi bi-door-open me-1"></i>Ruangan
+                                    </th>
+                                    <th class="text-center" style="padding: 15px;">
+                                        <i class="bi bi-calendar-check me-1"></i>Jumlah Booking
+                                    </th>
+                                    <th class="text-center" style="padding: 15px;">
+                                        <i class="bi bi-clock me-1"></i>Total Jam
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (!$most_borrowed): ?>
+                                    <tr>
+                                        <td colspan="4" class="text-center py-5">
+                                            <div class="text-muted">
+                                                <i class="bi bi-inbox display-4 d-block mb-3"></i>
+                                                <p class="mb-0">Belum ada data peminjaman</p>
                                             </div>
-                                            <div class="room-body">
-                                                <div class="room-title"><?= e($r['nama_ruangan']) ?></div>
-                                                <div class="room-meta">
-                                                    Lokasi : <?= e($r['gedung'] ?: '-') ?><br>
-                                                    Lantai : <?= e($r['Lantai'] ?? ($r['lantai'] ?? '-')) ?><br>
-                                                    Kapasitas : <?= e($r['kapasitas'] ?? 0) ?> orang
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                <?php else: ?>
+                                    <?php foreach ($most_borrowed as $i => $r): ?>
+                                        <tr>
+                                            <td class="text-center">
+                                                <span class="badge-number"><?= $i + 1 ?></span>
+                                            </td>
+                                            <td>
+                                                <span class="fw-bold"><?= e(($r['gedung'] ?? '-') . ' - ' . $r['nama_ruangan']) ?></span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-info"><?= (int) $r['j_pinjaman'] ?></span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-success"><?= e($r['total_jam'] ?? '00:00:00') ?></span>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
