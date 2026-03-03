@@ -11,16 +11,23 @@ $activeNav = "ruangan";
 
 /* HERO IMAGE */
 $heroImg = query("
-    SELECT foto 
-    FROM ruangan 
-    WHERE foto IS NOT NULL AND foto != ''
-    ORDER BY id 
+      SELECT nama_file
+    FROM ruangan_foto
+    WHERE nama_file IS NOT NULL AND nama_file != ''
+    ORDER BY id DESC
     LIMIT 1
 ")->fetchColumn();
 
 /* ambil semua ruangan */
 $ruangans = query(
-   "SELECT r.*, g.nama_gedung AS gedung, l.nomor AS Lantai
+    "SELECT r.*, g.nama_gedung AS gedung, l.nomor AS Lantai,
+         (
+             SELECT rf.nama_file
+             FROM ruangan_foto rf
+             WHERE rf.ruangan_id = r.id
+             ORDER BY rf.id DESC
+             LIMIT 1
+         ) AS foto_utama
     FROM ruangan r
     LEFT JOIN lantai l ON l.id = r.lantai_id
     LEFT JOIN gedung g ON g.id = l.gedung_id
@@ -33,7 +40,8 @@ require_once __DIR__ . "/../templates/header.php";
 <!-- HERO -->
 <section class="hero-page">
 
-   <img src="<?= $BASE ?>/uploads/ruangan/<?= e($heroImg) ?>" class="hero-bg">
+   <img src="<?= !empty($heroImg) ? ($BASE . 'uploads/ruangan/' . e($heroImg)) : ($BASE . 'assets/icons/logo_big.svg') ?>"
+      class="hero-bg" alt="Hero Ruangan">
 
    <div class="hero-overlay"></div>
 
@@ -65,12 +73,13 @@ require_once __DIR__ . "/../templates/header.php";
             <div class="room-grid">
 
                <?php foreach ($ruangans as $r): ?>
+                  <?php $fotoRuangan = $r['foto_utama'] ?? ''; ?>
 
                   <div class="room-item">
                      <div class="room-card">
 
                         <div class="room-img">
-                           <img src="<?= $BASE ?>/uploads/ruangan/<?= e($r['foto'] ?: 'noimage.png') ?>"
+                           <img src="<?= !empty($fotoRuangan) ? ($BASE . 'uploads/ruangan/' . e($fotoRuangan)) : ($BASE . 'assets/icons/logo_big.svg') ?>"
                               alt="<?= e($r['nama_ruangan']) ?>">
                         </div>
 
