@@ -59,6 +59,51 @@ if (!function_exists('aactive')) {
 </aside>
 
 <div class="asb-overlay" id="asbOverlay" aria-hidden="true"></div>
+<button class="asb-fab" id="asbMobileToggle" aria-label="Buka menu admin" aria-expanded="false">
+  <span class="asb-lines" aria-hidden="true">
+    <span class="asb-line"></span>
+    <span class="asb-line"></span>
+    <span class="asb-line"></span>
+  </span>
+</button>
+
+<script>
+  (function () {
+    const sidebar = document.getElementById('adminSidebar');
+    const overlay = document.getElementById('asbOverlay');
+    const sidebarBtn = document.getElementById('asbBurger');
+    const mobileBtn = document.getElementById('asbMobileToggle');
+
+    if (!sidebar) return;
+
+    const syncState = (open) => {
+      sidebar.classList.toggle('open', open);
+      document.body.classList.toggle('asb-open', open);
+      if (overlay) overlay.classList.toggle('show', open);
+      if (sidebarBtn) sidebarBtn.setAttribute('aria-expanded', String(open));
+      if (mobileBtn) mobileBtn.setAttribute('aria-expanded', String(open));
+      if (sidebarBtn) sidebarBtn.classList.toggle('is-open', open);
+      if (mobileBtn) mobileBtn.classList.toggle('is-open', open);
+    };
+
+    const toggle = () => syncState(!sidebar.classList.contains('open'));
+    const close = () => syncState(false);
+
+    if (sidebarBtn) sidebarBtn.addEventListener('click', toggle);
+    if (mobileBtn) mobileBtn.addEventListener('click', toggle);
+    if (overlay) overlay.addEventListener('click', close);
+
+    sidebar.querySelectorAll('.asb-link, .asb-logout').forEach((el) => {
+      el.addEventListener('click', () => {
+        if (window.matchMedia('(max-width: 992px)').matches) close();
+      });
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 992) syncState(false);
+    });
+  })();
+</script>
 
 <div class="wrap" style="background: transparent; max-width: none; padding: 0;">
   <main class="admin-main">

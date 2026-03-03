@@ -153,7 +153,7 @@ a {
   background: rgba(255, 255, 255, 0.14);
 }
 @media (max-width: 900px) {
-  .menu {
+  .mainmenu {
     display: none;
   }
   .burger {
@@ -161,6 +161,21 @@ a {
   }
   .mobilePanel.show {
     display: block;
+  }
+}
+
+@media (max-width: 600px) {
+  .topnavin {
+    padding: 12px 14px;
+  }
+
+  .wrap {
+    padding: 0 14px 70px;
+  }
+
+  .logo {
+    width: 165px;
+    height: 42px;
   }
 }
 
@@ -951,11 +966,51 @@ label {
   background: rgba(0, 0, 0, 0.45);
 }
 
+.asb-fab {
+  display: none;
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 40;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(17, 24, 39, 0.92);
+  color: #eaf2f7;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.asb-fab .asb-lines,
+.asb-burger .asb-lines {
+  transition: transform 0.2s ease;
+}
+
+.asb-fab.is-open .asb-line:nth-child(1),
+.asb-burger.is-open .asb-line:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.asb-fab.is-open .asb-line:nth-child(2),
+.asb-burger.is-open .asb-line:nth-child(2) {
+  opacity: 0;
+}
+
+.asb-fab.is-open .asb-line:nth-child(3),
+.asb-burger.is-open .asb-line:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
 /* Responsive: sidebar becomes drawer */
 @media (max-width: 992px) {
   .admin-main {
     margin-left: 0;
-    padding-top: 18px;
+    padding: 18px 12px 70px;
+    max-width: none;
   }
 
   .asb {
@@ -971,8 +1026,22 @@ label {
     display: flex;
   }
 
+  .asb-fab {
+    display: inline-flex;
+  }
+
   .asb-overlay.show {
     display: block;
+  }
+
+  body.asb-open {
+    overflow: hidden;
+  }
+
+  body.asb-open .asb-fab {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-8px);
   }
 }
 /* tombol logout di bawah sidebar */
@@ -1382,6 +1451,20 @@ label {
   .btn-tambah {
     width: 100%;
     padding: 14px 32px;
+  }
+
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  #tableRuangan .btn,
+  #tableRiwayat .btn,
+  #tableUser .btn,
+  #tablePersetujuan .btn {
+    min-width: 72px;
+    padding: 0 10px;
+    font-size: 12px;
   }
 }
 
