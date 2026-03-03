@@ -1005,7 +1005,7 @@ label {
   transform: translateY(-7px) rotate(-45deg);
 }
 
-/* Responsive: sidebar becomes drawer */
+
 @media (max-width: 992px) {
   .admin-main {
     margin-left: 0;
@@ -1014,12 +1014,33 @@ label {
   }
 
   .asb {
+    height: 100dvh;
     transform: translateX(-105%);
     transition: transform 0.22s ease;
     box-shadow: 0 22px 60px rgba(0, 0, 0, 0.35);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
   .asb.open {
     transform: translateX(0);
+  }
+
+  .asb-nav {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding-bottom: 14px;
+  }
+
+  .asb-foot {
+    position: static;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    margin-top: 10px;
+    padding-top: 8px;
+    background: linear-gradient(180deg, transparent 0%, rgba(17, 24, 39, 0.28) 45%, rgba(17, 24, 39, 0.45) 100%);
   }
 
   .asb-burger {
