@@ -15,7 +15,13 @@ $activeNav = "home";
 require_once __DIR__ . '/../templates/header.php';
 
 /* HERO IMAGE */
-$heroImages = query("SELECT foto FROM ruangan WHERE foto IS NOT NULL AND foto != '' ORDER BY id")->fetchAll();
+$heroImages = query(" 
+   SELECT nama_file AS foto
+   FROM ruangan_foto
+   WHERE nama_file IS NOT NULL AND nama_file != ''
+   ORDER BY id DESC
+   LIMIT 10
+")->fetchAll();
 
 /* FILTER */
 $tgl_awal = $_GET['tgl_awal'] ?? '';
@@ -40,7 +46,14 @@ if ($tgl_awal && $tgl_akhir) {
    $params[] = $tgl_akhir;
 }
 
-$sql = "SELECT r.*, g.nama_gedung AS gedung, l.nomor AS Lantai
+$sql = "SELECT r.*, g.nama_gedung AS gedung, l.nomor AS Lantai,
+   (
+      SELECT rf.nama_file
+      FROM ruangan_foto rf
+      WHERE rf.ruangan_id = r.id
+      ORDER BY rf.id DESC
+      LIMIT 1
+   ) AS foto_utama
    FROM ruangan r
    LEFT JOIN lantai l ON l.id = r.lantai_id
    LEFT JOIN gedung g ON g.id = l.gedung_id";
@@ -60,11 +73,17 @@ $gedungList = query("SELECT id, nama_gedung FROM gedung ORDER BY id")->fetchAll(
 
       <div class="carousel-inner">
 
-         <?php foreach ($heroImages as $i => $img): ?>
-            <div class="carousel-item <?= $i == 0 ? 'active' : '' ?>">
-               <img src="<?= $BASE ?>/uploads/ruangan/<?= e($img['foto']) ?>" class="d-block w-100">
+         <?php if (empty($heroImages)): ?>
+            <div class="carousel-item active">
+               <img src="<?= $BASE ?>assets/icons/logo_big.svg" class="d-block w-100" alt="SIPERU">
             </div>
-         <?php endforeach; ?>
+         <?php else: ?>
+            <?php foreach ($heroImages as $i => $img): ?>
+               <div class="carousel-item <?= $i == 0 ? 'active' : '' ?>">
+                  <img src="<?= $BASE ?>uploads/ruangan/<?= e($img['foto']) ?>" class="d-block w-100" alt="Hero Ruangan <?= $i + 1 ?>">
+               </div>
+            <?php endforeach; ?>
+         <?php endif; ?>
 
       </div>
 
@@ -130,13 +149,15 @@ $gedungList = query("SELECT id, nama_gedung FROM gedung ORDER BY id")->fetchAll(
 
             <div class="room-grid">
                <?php foreach ($ruangan as $r): ?>
+                  <?php $fotoRuangan = $r['foto_utama'] ?? ''; ?>
 
                   <div class="room-item">
 
                      <div class="room-card">
 
                         <div class="room-img">
-                           <img src="<?= $BASE ?>/uploads/ruangan/<?= e($r['foto']) ?>" alt="<?= e($r['nama_ruangan']) ?>">
+                           <img src="<?= !empty($fotoRuangan) ? ($BASE . 'uploads/ruangan/' . e($fotoRuangan)) : ($BASE . 'assets/icons/logo_big.svg') ?>"
+                              alt="<?= e($r['nama_ruangan']) ?>">
                         </div>
 
                         <div class="room-body">
