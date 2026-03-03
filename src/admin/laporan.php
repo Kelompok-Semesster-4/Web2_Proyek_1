@@ -98,6 +98,14 @@ $avgDurasi = (string) (query(
     [$startDate, $endDate]
 )->fetch()['avg_durasi'] ?? '00:00:00');
 
+function normalize_time_text(string $timeText): string
+{
+    return preg_replace('/\.\d+$/', '', $timeText) ?? $timeText;
+}
+
+$totalJam = normalize_time_text($totalJam);
+$avgDurasi = normalize_time_text($avgDurasi);
+
 /**
  * Top ruangan (paling sering dipakai) status 2/4
  */
@@ -116,6 +124,11 @@ $topRuangan = query(
      LIMIT 10",
     [$startDate, $endDate]
 )->fetchAll();
+
+foreach ($topRuangan as &$tr) {
+    $tr['total_jam'] = normalize_time_text((string) ($tr['total_jam'] ?? '00:00:00'));
+}
+unset($tr);
 
 /**
  * Rekap harian

@@ -49,7 +49,8 @@ $most_borrowed = query(
     LEFT JOIN lantai l ON l.id = r.lantai_id
     LEFT JOIN gedung g ON g.id = l.gedung_id
     JOIN peminjaman p ON p.ruangan_id = r.id
-    WHERE YEARWEEK(p.tanggal, 1) = YEARWEEK(CURDATE(), 1) AND p.status_id = 2
+    WHERE p.status_id IN (2,4)
+      AND p.tanggal BETWEEN DATE_FORMAT(CURDATE(), '%Y-%m-01') AND LAST_DAY(CURDATE())
     GROUP BY r.id, r.nama_ruangan, g.nama_gedung, l.nomor
     ORDER BY j_pinjaman DESC
     LIMIT 3"
