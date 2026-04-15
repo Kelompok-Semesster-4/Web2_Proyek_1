@@ -982,7 +982,9 @@ label {
   align-items: center;
   justify-content: center;
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 .asb-fab .asb-lines,
@@ -1004,7 +1006,6 @@ label {
 .asb-burger.is-open .asb-line:nth-child(3) {
   transform: translateY(-7px) rotate(-45deg);
 }
-
 
 @media (max-width: 992px) {
   .admin-main {
@@ -1040,7 +1041,12 @@ label {
     bottom: auto;
     margin-top: 10px;
     padding-top: 8px;
-    background: linear-gradient(180deg, transparent 0%, rgba(17, 24, 39, 0.28) 45%, rgba(17, 24, 39, 0.45) 100%);
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(17, 24, 39, 0.28) 45%,
+      rgba(17, 24, 39, 0.45) 100%
+    );
   }
 
   .asb-burger {
@@ -1480,6 +1486,8 @@ label {
   }
 
   #tableRuangan .btn,
+  #tableGedung .btn,
+  #tableLantai .btn,
   #tableRiwayat .btn,
   #tableUser .btn,
   #tablePersetujuan .btn {
@@ -1506,12 +1514,16 @@ label {
 
 /* ================= KELOLA RUANGAN - TABLE SPECIFIC ================= */
 
-#tableRuangan {
+#tableRuangan,
+#tableGedung,
+#tableLantai {
   border-collapse: separate;
   border-spacing: 0;
 }
 
-#tableRuangan thead th {
+#tableRuangan thead th,
+#tableGedung thead th,
+#tableLantai thead th {
   font-size: 12px;
   letter-spacing: 0.6px;
   color: #475569;
@@ -1520,7 +1532,9 @@ label {
   text-align: center;
 }
 
-#tableRuangan tbody td {
+#tableRuangan tbody td,
+#tableGedung tbody td,
+#tableLantai tbody td {
   padding: 14px 12px;
   border-bottom: 1px solid #eef2f7;
   vertical-align: middle;
@@ -1528,21 +1542,33 @@ label {
 
 /* column separator */
 #tableRuangan th,
-#tableRuangan td {
+#tableRuangan td,
+#tableGedung th,
+#tableGedung td,
+#tableLantai th,
+#tableLantai td {
   border-right: 1px solid #e5e7eb;
 }
 
 #tableRuangan th:last-child,
-#tableRuangan td:last-child {
+#tableRuangan td:last-child,
+#tableGedung th:last-child,
+#tableGedung td:last-child,
+#tableLantai th:last-child,
+#tableLantai td:last-child {
   border-right: none;
 }
 
 /* ===== HOVER ROW (FIXED) ===== */
-#tableRuangan tbody tr {
+#tableRuangan tbody tr,
+#tableGedung tbody tr,
+#tableLantai tbody tr {
   transition: background 0.15s ease;
 }
 
-#tableRuangan tbody tr:hover td {
+#tableRuangan tbody tr:hover td,
+#tableGedung tbody tr:hover td,
+#tableLantai tbody tr:hover td {
   background: #f1f5f9;
 }
 
@@ -1550,7 +1576,11 @@ label {
 
 /* base height semua label */
 #tableRuangan .badge,
+#tableGedung .badge,
+#tableLantai .badge,
 #tableRuangan .btn,
+#tableGedung .btn,
+#tableLantai .btn,
 .badge-number {
   height: 34px;
   line-height: 34px;
@@ -1564,7 +1594,9 @@ label {
 }
 
 /* bootstrap badge baseline correction */
-#tableRuangan .badge {
+#tableRuangan .badge,
+#tableGedung .badge,
+#tableLantai .badge {
   transform: translateY(-1px);
 }
 
@@ -1590,8 +1622,35 @@ label {
   min-width: 110px;
 }
 
+/* GEDUNG (TABLE GEDUNG) */
+#tableGedung td:nth-child(2) .badge {
+  min-width: 110px;
+}
+
+/* JUMLAH LANTAI (TABLE GEDUNG) */
+#tableGedung td:nth-child(3) .badge {
+  min-width: 80px;
+}
+
+/* JUMLAH RUANGAN (TABLE GEDUNG) */
+#tableGedung td:nth-child(4) .badge {
+  min-width: 120px;
+}
+
+/* NOMOR LANTAI (TABLE LANTAI) */
+#tableLantai td:nth-child(2) .badge {
+  min-width: 80px;
+}
+
+/* JUMLAH RUANGAN (TABLE LANTAI) */
+#tableLantai td:nth-child(3) .badge {
+  min-width: 120px;
+}
+
 /* tombol */
-#tableRuangan .btn {
+#tableRuangan .btn,
+#tableGedung .btn,
+#tableLantai .btn {
   min-width: 90px;
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
   transition: 0.2s;
@@ -1599,32 +1658,48 @@ label {
 }
 
 /* warna tombol */
-#tableRuangan .btn-info {
+#tableRuangan .btn-info,
+#tableGedung .btn-info,
+#tableLantai .btn-info {
   background: linear-gradient(135deg, #22b8cf, #0ea5b7) !important;
 }
 
-#tableRuangan .btn-warning {
+#tableRuangan .btn-warning,
+#tableGedung .btn-warning,
+#tableLantai .btn-warning {
   background: linear-gradient(135deg, #ffbe0b, #ff9800) !important;
 }
 
-#tableRuangan .btn-danger {
+#tableRuangan .btn-danger,
+#tableGedung .btn-danger,
+#tableLantai .btn-danger {
   background: linear-gradient(135deg, #ef4444, #dc2626) !important;
 }
 
 /* hover tombol */
-#tableRuangan .btn:hover {
+#tableRuangan .btn:hover,
+#tableGedung .btn:hover,
+#tableLantai .btn:hover {
   transform: translateY(-1px);
 }
 
 /* hilangkan teks hitam saat hover */
 #tableRuangan .btn-info:hover,
 #tableRuangan .btn-info:focus,
-#tableRuangan .btn-info:active {
+#tableRuangan .btn-info:active,
+#tableGedung .btn-info:hover,
+#tableGedung .btn-info:focus,
+#tableGedung .btn-info:active,
+#tableLantai .btn-info:hover,
+#tableLantai .btn-info:focus,
+#tableLantai .btn-info:active {
   color: #fff !important;
 }
 
 /* spacing tombol */
-#tableRuangan td:last-child .d-flex {
+#tableRuangan td:last-child .d-flex,
+#tableGedung td:last-child .d-flex,
+#tableLantai td:last-child .d-flex {
   gap: 10px;
   align-items: center;
 }
@@ -2187,13 +2262,18 @@ label {
 }
 
 /* ================= Login Page ================= */
-.login-stage .stats-left .s-card{
-  text-align:center;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  min-height:92px;
+.login-stage .stats-left .s-card {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 92px;
 }
-.login-stage .stats-left .s-val{ font-size:26px; line-height:1; }
-.login-stage .stats-left .s-lbl{ margin-top:8px; }
+.login-stage .stats-left .s-val {
+  font-size: 26px;
+  line-height: 1;
+}
+.login-stage .stats-left .s-lbl {
+  margin-top: 8px;
+}
