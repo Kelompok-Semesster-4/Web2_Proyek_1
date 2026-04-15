@@ -7,6 +7,8 @@ $activeAdmin = $activeAdmin ?? "dashboard";
 $A = [
   "dashboard" => "dashboard.php",
   "ruangan"   => "ruangan.php",
+  "gedung"    => "kelola_gedung.php",
+  "lantai"    => "kelola_lantai.php",
   "user"      => "kelola_user.php",
   "approve"   => "persetujuan.php",
   "laporan"   => "laporan.php",
@@ -14,7 +16,10 @@ $A = [
 ];
 
 if (!function_exists('aactive')) {
-  function aactive($key, $activeAdmin) { return $key === $activeAdmin ? "active" : ""; }
+  function aactive($key, $activeAdmin)
+  {
+    return $key === $activeAdmin ? "active" : "";
+  }
 }
 ?>
 
@@ -39,6 +44,12 @@ if (!function_exists('aactive')) {
     </a>
     <a class="asb-link <?= aactive('ruangan', $activeAdmin) ?>" href="<?= $A['ruangan'] ?>">
       <span class="dot"></span> Kelola Ruangan
+    </a>
+    <a class="asb-link <?= aactive('gedung', $activeAdmin) ?>" href="<?= $A['gedung'] ?>">
+      <span class="dot"></span> Kelola Gedung
+    </a>
+    <a class="asb-link <?= aactive('lantai', $activeAdmin) ?>" href="<?= $A['lantai'] ?>">
+      <span class="dot"></span> Kelola Lantai
     </a>
     <a class="asb-link <?= aactive('approve', $activeAdmin) ?>" href="<?= $A['approve'] ?>">
       <span class="dot"></span> Approve Peminjaman
@@ -68,7 +79,7 @@ if (!function_exists('aactive')) {
 </button>
 
 <script>
-  (function () {
+  (function() {
     const sidebar = document.getElementById('adminSidebar');
     const overlay = document.getElementById('asbOverlay');
     const sidebarBtn = document.getElementById('asbBurger');
