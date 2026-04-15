@@ -63,12 +63,42 @@ foreach ($most_borrowed as &$row) {
 }
 unset($row);
 
-function renderProgressBar($max, $segments) {
+// Data untuk grafik kunjungan bulanan (6 bulan terakhir)
+$kunjunganBulanan = query(
+    "SELECT 
+        DATE_FORMAT(p.tanggal, '%b') AS bulan,
+        MONTH(p.tanggal) AS bulan_num,
+        COUNT(DISTINCT p.user_id) AS total_kunjungan
+    FROM peminjaman p
+    WHERE p.tanggal >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
+    GROUP BY YEAR(p.tanggal), MONTH(p.tanggal), DATE_FORMAT(p.tanggal, '%b')
+    ORDER BY YEAR(p.tanggal), MONTH(p.tanggal) ASC"
+)->fetchAll();
+
+// Data untuk grafik peminjaman vs pengembalian bulanan
+$trendPeminjamanBulanan = query(
+    "SELECT 
+        DATE_FORMAT(p.tanggal, '%b') AS bulan,
+        MONTH(p.tanggal) AS bulan_num,
+        COUNT(IF(p.status_id = 2, 1, NULL)) AS peminjaman,
+        COUNT(IF(p.status_id = 4, 1, NULL)) AS pengembalian
+    FROM peminjaman p
+    WHERE p.tanggal >= DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
+    GROUP BY YEAR(p.tanggal), MONTH(p.tanggal), DATE_FORMAT(p.tanggal, '%b')
+    ORDER BY YEAR(p.tanggal), MONTH(p.tanggal) ASC"
+)->fetchAll();
+
+// Total statistik
+$totalPeminjaman = query("SELECT COUNT(*) AS total FROM peminjaman WHERE status_id IN (2,4)")->fetchAll()[0]['total'] ?? 0;
+$totalPengembalian = query("SELECT COUNT(*) AS total FROM peminjaman WHERE status_id = 4")->fetchAll()[0]['total'] ?? 0;
+
+function renderProgressBar($max, $segments)
+{
     $html = '<div class="progress mb-3" style="height: 25px;">';
     $accValue = 0;
 
     foreach ($segments as $segment) {
-        $val = max(0, (float)$segment['value']);
+        $val = max(0, (float) $segment['value']);
 
         if (($accValue + $val) > $max) {
             $val = $max - $accValue;
@@ -92,7 +122,8 @@ function renderProgressBar($max, $segments) {
 
         $accValue += $val;
 
-        if ($accValue >= $max) break;
+        if ($accValue >= $max)
+            break;
     }
 
     $html .= "</div>";
@@ -124,116 +155,148 @@ $totalAdmin = $users['total_admin'];
 $totalMahasiswa = $users['total_mahasiswa'];
 ?>
 
-<div class="container-fluid p-2">
+<!-- Stat Cards - Kompak dan Modern -->
+<div class="container-fluid p-3">
     <div class="row mb-3">
-        <div class="col-md-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="bi bi-door-closed" style="margin-right: 3px"></i>
-                        Ruangan 
-                        <a href="./ruangan.php">
-                            <i class="bi bi-arrow-right-circle"></i>
-                        </a>
-                    </h5>
-                    <div class="row mb-3">
-                        <div class="col-6 text-center text-danger">
-                            <h1 class="mb-0"><?= $ruanganTerpakai ?></h1>
-                            <span class="text-danger-subtle">Terpakai</span>
-                        </div>
-                        <div class="col-6 text-center text-success">
-                            <h1 class="mb-0"><?= $ruanganTersedia ?></h1>
-                            <span class="text-success-subtle">Tersedia</span>
-                        </div>
-                    </div>
-                    <?php
-                    $ruanganMax = $ruanganTerpakai + $ruanganTersedia;
-                    $ruanganSegments = [
-                        ['value' => $ruanganTerpakai, 'label' => 'Ruangan Terpakai', 'bg_class' => 'bg-danger'],
-                        ['value' => $ruanganTersedia, 'label' => 'Ruangan Tersedia', 'bg_class' => 'bg-success']
-                    ];
+        <div class="col-md-6 col-lg-3 col-xl-2 mb-3">
+            <div class="stat-card-slim bg-primary">
+                <div class="stat-card-header">
+                    <i class="bi bi-book"></i>
+                    <span class="stat-value"><?= $ruanganTerpakai + $ruanganTersedia ?></span>
+                </div>
+                <div class="stat-card-label">Total Ruangan</div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3 col-xl-2 mb-3">
+            <div class="stat-card-slim bg-success">
+                <div class="stat-card-header">
+                    <i class="bi bi-person"></i>
+                    <span class="stat-value"><?= $totalPengguna ?></span>
+                </div>
+                <div class="stat-card-label">Total Pengguna</div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3 col-xl-2 mb-3">
+            <div class="stat-card-slim bg-warning">
+                <div class="stat-card-header">
+                    <i class="bi bi-calendar2-check"></i>
+                    <span class="stat-value"><?= $peminjamanDisetujui ?></span>
+                </div>
+                <div class="stat-card-label">Peminjaman Aktif</div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3 col-xl-2 mb-3">
+            <div class="stat-card-slim bg-info">
+                <div class="stat-card-header">
+                    <i class="bi bi-door-open"></i>
+                    <span class="stat-value"><?= $ruanganTersedia ?></span>
+                </div>
+                <div class="stat-card-label">Tersedia</div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3 col-xl-2 mb-3">
+            <div class="stat-card-slim bg-danger">
+                <div class="stat-card-header">
+                    <i class="bi bi-exclamation-circle"></i>
+                    <span class="stat-value"><?= $peminjamanPending ?></span>
+                </div>
+                <div class="stat-card-label">Pending</div>
+            </div>
+        </div>
+        <div class="col-md-6 col-lg-3 col-xl-2 mb-3">
+            <div class="stat-card-slim bg-secondary">
+                <div class="stat-card-header">
+                    <i class="bi bi-clock-history"></i>
+                    <span
+                        class="stat-value"><?= $peminjamanPending + $peminjamanDitolak + $peminjamanDisetujui ?></span>
+                </div>
+                <div class="stat-card-label">Total Transaksi</div>
+            </div>
+        </div>
+    </div>
 
-                    echo renderProgressBar($ruanganMax, $ruanganSegments);
-                    ?>
+    <!-- Distribution Charts Row - All Histograms -->
+    <div class="row mb-4">
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-bar-chart me-2"></i>Status Ruangan
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="ruanganChart" style="max-height: 250px;"></canvas>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="bi bi-calendar2-check" style="margin-right: 3px"></i>
-                        Peminjaman
-                        <a href="./persetujuan.php">
-                            <i class="bi bi-arrow-right-circle"></i>
-                        </a>
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-bar-chart me-2"></i>Status Peminjaman Hari Ini
                     </h5>
-                    <div class="row mb-3">
-                        <div class="col-4 text-center text-danger">
-                            <h1 class="mb-0"><?= $peminjamanDitolak ?></h1>
-                            <span class="text-danger-subtle">Ditolak</span>
-                        </div>
-                        <div class="col-4 text-center text-warning">
-                            <h1 class="mb-0"><?= $peminjamanPending ?></h1>
-                            <span class="text-warning-subtle">Pending</span>
-                        </div>
-                        <div class="col-4 text-center text-success">
-                            <h1 class="mb-0"><?= $peminjamanDisetujui ?></h1>
-                            <span class="text-success-subtle">Disetujui</span>
-                        </div>
-                    </div>
-                    <?php
-                    $peminjamanMax = $peminjamanPending + $peminjamanDitolak + $peminjamanDisetujui;
-                    $peminjamanSegments = [
-                        ['value' => $peminjamanDitolak, 'label' => 'Peminjaman Ditolak', 'bg_class' => 'bg-danger'],
-                        ['value' => $peminjamanPending, 'label' => 'Peminjaman Pending', 'bg_class' => 'bg-warning'],
-                        ['value' => $peminjamanDisetujui, 'label' => 'Peminjaman Disetujui', 'bg_class' => 'bg-success']
-                    ];
-
-                    echo renderProgressBar($peminjamanMax, $peminjamanSegments);
-                    ?>
+                </div>
+                <div class="card-body">
+                    <canvas id="peminjamanChart" style="max-height: 250px;"></canvas>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="bi bi-person-fill" style="margin-right: 3px"></i>
-                        Pengguna
-                        <a href="./kelola_user.php">
-                            <i class="bi bi-arrow-right-circle"></i>
-                        </a>
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-bar-chart me-2"></i>Distribusi Pengguna
                     </h5>
-                    <h1 class="text-dark"><?= $totalPengguna ?></h1>
-                    <?php
-                    $usersSegments = [
-                        ['value' => $totalAdmin, 'label' => 'Admin', 'bg_class' => 'bg-primary'],
-                        ['value' => $totalMahasiswa, 'label' => 'Mahasiswa', 'bg_class' => 'bg-info']
-                    ];
-
-                    echo renderProgressBar($totalPengguna, $usersSegments);
-                    ?>
-                    <p>
-                        <span class="text-primary"><?= $totalAdmin ?> admin, </span>
-                        <span class="text-info"><?= $totalMahasiswa ?> mahasiswa</span>
-                    </p>
-
+                </div>
+                <div class="card-body">
+                    <canvas id="userChart" style="max-height: 250px;"></canvas>
                 </div>
             </div>
         </div>
     </div>
-    <div class="row mb-3">
-        <div class="col">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        <i class="bi bi-door-open-fill" style="margin-right: 3px"></i>
-                        Ruangan Paling Sering Dipinjam
+
+    <!-- Trend Charts Row -->
+    <div class="row mb-4">
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-graph-up me-2"></i>Kunjungan 6 Bulan Terakhir
                     </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="kunjunganChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-graph-up me-2"></i>Tren Peminjaman & Pengembalian
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="trendChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Most Borrowed Rooms Table -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="bi bi-door-open-fill me-2"></i>Ruangan Paling Sering Dipinjam
+                    </h5>
+                </div>
+                <div class="card-body">
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">
-                            <thead style="background: linear-gradient(to right, #f8f9fa, #e9ecef); white-space: nowrap;">
+                            <thead
+                                style="background: linear-gradient(to right, #f8f9fa, #e9ecef); white-space: nowrap;">
                                 <tr>
                                     <th style="width: 50px; padding: 15px 10px;" class="text-center">
                                         <i class="bi bi-hash"></i>
@@ -266,7 +329,8 @@ $totalMahasiswa = $users['total_mahasiswa'];
                                                 <span class="badge-number"><?= $i + 1 ?></span>
                                             </td>
                                             <td>
-                                                <span class="fw-bold"><?= e(($r['gedung'] ?? '-') . ' - ' . $r['nama_ruangan']) ?></span>
+                                                <span
+                                                    class="fw-bold"><?= e(($r['gedung'] ?? '-') . ' - ' . $r['nama_ruangan']) ?></span>
                                             </td>
                                             <td class="text-center">
                                                 <span class="badge bg-info"><?= (int) $r['j_pinjaman'] ?></span>
@@ -285,3 +349,208 @@ $totalMahasiswa = $users['total_mahasiswa'];
         </div>
     </div>
 </div>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<script>
+    // Data untuk grafik
+    const kunjunganData = <?= json_encode($kunjunganBulanan) ?>;
+    const trendData = <?= json_encode($trendPeminjamanBulanan) ?>;
+    const ruanganTerpakai = <?= $ruanganTerpakai ?>;
+    const ruanganTersedia = <?= $ruanganTersedia ?>;
+    const peminjamanDisetujui = <?= $peminjamanDisetujui ?>;
+    const peminjamanPending = <?= $peminjamanPending ?>;
+    const peminjamanDitolak = <?= $peminjamanDitolak ?>;
+    const totalAdmin = <?= $totalAdmin ?>;
+    const totalMahasiswa = <?= $totalMahasiswa ?>;
+
+    // ===== BAR CHART: Status Ruangan =====
+    const ruanganCtx = document.getElementById('ruanganChart').getContext('2d');
+    const maxRuangan = ruanganTerpakai + ruanganTersedia;
+    new Chart(ruanganCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Terpakai', 'Tersedia'],
+            datasets: [{
+                label: 'Jumlah Ruangan',
+                data: [ruanganTerpakai, ruanganTersedia],
+                backgroundColor: ['#ef4444', '#10b981'],
+                borderRadius: 6,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // ===== BAR CHART: Status Peminjaman Hari Ini =====
+    const peminjamanCtx = document.getElementById('peminjamanChart').getContext('2d');
+    const maxPeminjaman = peminjamanDisetujui + peminjamanPending + peminjamanDitolak;
+    new Chart(peminjamanCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Disetujui', 'Pending', 'Ditolak'],
+            datasets: [{
+                label: 'Jumlah Peminjaman',
+                data: [peminjamanDisetujui, peminjamanPending, peminjamanDitolak],
+                backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                borderRadius: 6,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // ===== BAR CHART: Distribusi Pengguna =====
+    const userCtx = document.getElementById('userChart').getContext('2d');
+    new Chart(userCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Admin', 'Mahasiswa'],
+            datasets: [{
+                label: 'Jumlah Pengguna',
+                data: [totalAdmin, totalMahasiswa],
+                backgroundColor: ['#3b82f6', '#06b6d4'],
+                borderRadius: 6,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // ===== BAR CHART: Kunjungan Bulanan =====
+    if (kunjunganData.length > 0) {
+        const kunjunganCtx = document.getElementById('kunjunganChart').getContext('2d');
+        const kunjunganLabels = kunjunganData.map(d => d.bulan);
+        const kunjunganValues = kunjunganData.map(d => parseInt(d.total_kunjungan));
+
+        new Chart(kunjunganCtx, {
+            type: 'bar',
+            data: {
+                labels: kunjunganLabels,
+                datasets: [{
+                    label: 'Jumlah Kunjungan',
+                    data: kunjunganValues,
+                    backgroundColor: [
+                        '#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'
+                    ],
+                    borderRadius: 6,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                indexAxis: 'x',
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // ===== BAR CHART: Tren Peminjaman & Pengembalian =====
+    if (trendData.length > 0) {
+        const trendCtx = document.getElementById('trendChart').getContext('2d');
+        const trendLabels = trendData.map(d => d.bulan);
+        const peminjamanValues = trendData.map(d => parseInt(d.peminjaman));
+        const pengembalianValues = trendData.map(d => parseInt(d.pengembalian));
+
+        new Chart(trendCtx, {
+            type: 'bar',
+            data: {
+                labels: trendLabels,
+                datasets: [
+                    {
+                        label: 'Peminjaman',
+                        data: peminjamanValues,
+                        backgroundColor: '#3b82f6',
+                        borderRadius: 6,
+                        borderSkipped: false
+                    },
+                    {
+                        label: 'Pengembalian',
+                        data: pengembalianValues,
+                        backgroundColor: '#10b981',
+                        borderRadius: 6,
+                        borderSkipped: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                indexAxis: 'x',
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    }
+</script>
+
+<?php require_once __DIR__ . "/../templates/footer.php"; ?>
