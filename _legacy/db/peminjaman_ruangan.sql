@@ -145,11 +145,11 @@ CREATE TABLE `ruangan` (
 
 LOCK TABLES `ruangan` WRITE;
 /*!40000 ALTER TABLE `ruangan` DISABLE KEYS */;
-INSERT INTO `ruangan` (`id`, `nama_ruangan`, `gedung`, `kapasitas`, `deskripsi`, `foto`, `Lantai`) VALUES
-(1,'Ruang 101','Gedung A',40,'Ruang kelas standar untuk kuliah teori.','ruang101.jpg','1'),
-(2,'Ruang 102','Gedung A',30,'Ruang presentasi dengan dukungan multimedia.','ruang102.jpg','1'),
-(3,'Ruang 111','Gedung B',30,'Ruang diskusi dan praktikum skala kecil.','ruang111.jpg','2'),
-(4,'Ruang 112','Gedung B',40,'Ruang kelas besar untuk kegiatan akademik.','ruang112.jpg','2');
+INSERT INTO `ruangan` (`id`, `nama_ruangan`, `gedung`, `kapasitas`, `deskripsi`, `Lantai`) VALUES
+(1,'Ruang 101','Gedung A',40,'Ruang kelas standar untuk kuliah teori.','1'),
+(2,'Ruang 102','Gedung A',30,'Ruang presentasi dengan dukungan multimedia.','1'),
+(3,'Ruang 111','Gedung B',30,'Ruang diskusi dan praktikum skala kecil.','2'),
+(4,'Ruang 112','Gedung B',40,'Ruang kelas besar untuk kegiatan akademik.','2');
 /*!40000 ALTER TABLE `ruangan` ENABLE KEYS */;
 UNLOCK TABLES;
 
