@@ -279,8 +279,15 @@ $stats = [
 
         <button class="btn" type="submit">Masuk</button>
 
-        <div class="helper">
+        <div class="helper" style="margin-bottom: 15px;">
           Gunakan akun yang sudah terdaftar. Jika gagal login, pastikan username/password benar.
+        </div>
+        
+        <div style="text-align: center;">
+            <a href="login_google.php" class="btn" style="background: #ffffff; color: #475569; border: 1px solid #e5e7eb; display: flex; justify-content: center; align-items: center; gap: 10px; text-decoration: none;">
+                <img src="../assets/icons/google_logo.svg" alt="Google" width="18">
+                Masuk dengan Google
+            </a>
         </div>
       </form>
     </section>

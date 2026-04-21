@@ -344,7 +344,9 @@ LEFT JOIN lantai l ON l.id = r.lantai_id
 LEFT JOIN gedung g ON g.id = l.gedung_id
 ORDER BY r.nama_ruangan ASC;
 
-
+ALTER TABLE users
+ADD COLUMN email VARCHAR(255) NULL UNIQUE,
+ADD COLUMN google_id VARCHAR(255) NULL UNIQUE;
 --
 -- Dumping events for database 'peminjaman_ruangan'
 --
