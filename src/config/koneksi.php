@@ -10,12 +10,16 @@ if (file_exists($envPath)) {
         if ($line === '' || $line[0] === '#') {
             continue;
         }
+        if (strpos($line, '=') === false) {
+            continue;
+        }
         [$k, $v] = array_map('trim', explode('=', $line, 2));
         $_ENV[$k] = trim($v, "\"'");
     }
 }
 
-function env(string $k, $default = null) {
+function env(string $k, $default = null)
+{
     return $_ENV[$k] ?? $default;
 }
 
@@ -23,9 +27,9 @@ function db(): PDO {
     static $pdo = null;
     if ($pdo) return $pdo;
 
-    $dsn = "mysql:host=" . env('DB_HOST','127.0.0.1') .
-           ";dbname=" . env('DB_NAME','') .
-           ";charset=utf8mb4";
+    $dsn = "mysql:host=" . env('DB_HOST', '127.0.0.1') .
+        ";dbname=" . env('DB_NAME', '') .
+        ";charset=utf8mb4";
 
     $pdo = new PDO($dsn, env('DB_USER','root'), env('DB_PASS',''), [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,

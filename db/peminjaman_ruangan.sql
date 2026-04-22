@@ -37,6 +37,15 @@ CREATE TABLE `fasilitas` (
 
 LOCK TABLES `fasilitas` WRITE;
 /*!40000 ALTER TABLE `fasilitas` DISABLE KEYS */;
+INSERT INTO `fasilitas` VALUES
+(1,'Proyektor'),
+(2,'AC'),
+(3,'WiFi'),
+(4,'Sound System'),
+(5,'Papan Tulis'),
+(6,'Mikrofon'),
+(7,'Kursi'),
+(8,'Meja');
 /*!40000 ALTER TABLE `fasilitas` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -70,6 +79,7 @@ CREATE TABLE `log_status` (
 
 LOCK TABLES `log_status` WRITE;
 /*!40000 ALTER TABLE `log_status` DISABLE KEYS */;
+
 /*!40000 ALTER TABLE `log_status` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -109,6 +119,7 @@ CREATE TABLE `peminjaman` (
 
 LOCK TABLES `peminjaman` WRITE;
 /*!40000 ALTER TABLE `peminjaman` DISABLE KEYS */;
+
 /*!40000 ALTER TABLE `peminjaman` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -125,7 +136,7 @@ CREATE TABLE `ruangan` (
   `gedung` varchar(100) DEFAULT NULL,
   `kapasitas` int DEFAULT NULL,
   `deskripsi` text,
-  `foto` varchar(255) DEFAULT NULL,
+  `Lantai` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -221,6 +232,78 @@ INSERT INTO `users` VALUES (1,'Admin Fakultas','admin','0192023a7bbd73250516f069
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
+
+-- ini Fitur baru di 1 maret 2026: Penambahan tabel gedung dan lantai untuk mengelompokkan ruangan berdasarkan lokasi fisik. Tabel gedung menyimpan nama gedung, sedangkan tabel lantai menyimpan nomor lantai yang terkait dengan gedung tertentu. Relasi antara ruangan dan lantai dibuat melalui kolom lantai_id di tabel ruangan.
+
+-- 1) Buat tabel master
+CREATE TABLE IF NOT EXISTS gedung (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  nama_gedung VARCHAR(100) NOT NULL UNIQUE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS lantai (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  gedung_id INT NOT NULL,
+  nomor INT NOT NULL,
+  UNIQUE (gedung_id, nomor),
+  CONSTRAINT fk_lantai_gedung
+    FOREIGN KEY (gedung_id) REFERENCES gedung(id)
+    ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- 2) Masukkan master dari data ruangan lama (gedung & Lantai masih ada)
+INSERT IGNORE INTO gedung (nama_gedung)
+SELECT DISTINCT r.gedung
+FROM ruangan r
+WHERE r.gedung IS NOT NULL AND r.gedung <> '';
+
+INSERT IGNORE INTO lantai (gedung_id, nomor)
+SELECT g.id, CAST(r.Lantai AS UNSIGNED) AS nomor
+FROM ruangan r
+JOIN gedung g ON g.nama_gedung = r.gedung
+WHERE r.Lantai IS NOT NULL AND r.Lantai <> ''
+GROUP BY g.id, CAST(r.Lantai AS UNSIGNED);
+
+-- 3) Tambah kolom lantai_id (kalau belum ada)
+-- NOTE: kalau kolom sudah ada, baris ini akan error.
+-- Jadi jalankan ini hanya kalau belum ada.
+ALTER TABLE ruangan
+ADD COLUMN lantai_id INT NULL AFTER nama_ruangan;
+
+-- 4) Isi ruangan.lantai_id berdasarkan data lama
+UPDATE ruangan r
+JOIN gedung g ON g.nama_gedung = r.gedung
+JOIN lantai l ON l.gedung_id = g.id AND l.nomor = CAST(r.Lantai AS UNSIGNED)
+SET r.lantai_id = l.id;
+
+-- 5) Cek apakah masih ada yang NULL (kalau masih ada, jangan lanjut drop)
+SELECT id, nama_ruangan, gedung, Lantai, lantai_id
+FROM ruangan
+WHERE lantai_id IS NULL;
+
+-- 6) Tambah foreign key (kalau belum ada)
+ALTER TABLE ruangan
+ADD CONSTRAINT fk_ruangan_lantai
+FOREIGN KEY (lantai_id) REFERENCES lantai(id)
+ON DELETE RESTRICT;
+
+-- 7) Baru hapus kolom lama (opsional, setelah yakin lantai_id sudah beres)
+ALTER TABLE ruangan
+DROP COLUMN gedung,
+DROP COLUMN Lantai;
+
+-- 8) Query JOIN untuk tampilan (list ruangan)
+SELECT r.*,
+       g.nama_gedung AS gedung,
+       l.nomor AS Lantai
+FROM ruangan r
+LEFT JOIN lantai l ON l.id = r.lantai_id
+LEFT JOIN gedung g ON g.id = l.gedung_id
+ORDER BY r.nama_ruangan ASC;
+
+ALTER TABLE users
+ADD COLUMN email VARCHAR(255) NULL UNIQUE,
+ADD COLUMN google_id VARCHAR(255) NULL UNIQUE;
 --
 -- Dumping events for database 'peminjaman_ruangan'
 --
@@ -239,3 +322,4 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2026-02-14 13:51:05
+
