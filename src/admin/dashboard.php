@@ -430,7 +430,7 @@ require_once __DIR__ . '/../templates/admin_sidebar.php';
                 <div class="card-header bg-light">
                     <h6 class="mb-0">Today's Schedule</h6>
                 </div>
-                <div class="table-responsive dashboard-scroll-220">
+                <div class="table-responsive dashboard-scroll-220 dashboard-scroll-thin">
                     <table class="table table-hover mb-0 align-middle" id="todayScheduleCompactTable">
                         <thead>
                             <tr>
@@ -446,8 +446,17 @@ require_once __DIR__ . '/../templates/admin_sidebar.php';
                                 <tr>
                                     <td colspan="5" class="text-center py-4 text-muted">Belum ada jadwal hari ini.</td>
                                 </tr>
-                            <?php else:
-                                foreach ($jadwalHariIni as $jadwal): ?>
+                                <?php else:
+                                $todayStatusBadgeMap = [
+                                    'Disetujui' => 'success',
+                                    'Selesai' => 'success',
+                                    'Ditolak' => 'danger',
+                                    'Menunggu' => 'warning',
+                                    'Dibatalkan' => 'secondary',
+                                ];
+                                foreach ($jadwalHariIni as $jadwal):
+                                    $todayStatusBadge = $todayStatusBadgeMap[$jadwal['nama_status']] ?? 'secondary';
+                                ?>
                                     <tr>
                                         <td><?= e(substr((string) $jadwal['jam_mulai'], 0, 5)) ?> -
                                             <?= e(substr((string) $jadwal['jam_selesai'], 0, 5)) ?></td>
@@ -455,7 +464,7 @@ require_once __DIR__ . '/../templates/admin_sidebar.php';
                                                 class="text-muted"><?= e($jadwal['gedung'] ?? '-') ?></small></td>
                                         <td><?= e($jadwal['nama_peminjam']) ?></td>
                                         <td><?= e($jadwal['nama_kegiatan']) ?></td>
-                                        <td><span class="badge bg-secondary"><?= e($jadwal['nama_status']) ?></span></td>
+                                        <td><span class="badge bg-<?= e($todayStatusBadge) ?>"><?= e($jadwal['nama_status']) ?></span></td>
                                     </tr>
                                 <?php endforeach; endif; ?>
                         </tbody>
