@@ -1,4 +1,4 @@
-CREATE DATABASE  IF NOT EXISTS `peminjaman_ruangan` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci */;
+CREATE DATABASE  IF NOT EXISTS `peminjaman_ruangan` /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci */;
 USE `peminjaman_ruangan`;
 -- MySQL dump 10.13  Distrib 8.0.43, for Win64 (x86_64)
 --
@@ -23,12 +23,12 @@ USE `peminjaman_ruangan`;
 
 DROP TABLE IF EXISTS `fasilitas`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8 */;
 CREATE TABLE `fasilitas` (
   `id` int NOT NULL AUTO_INCREMENT,
   `nama_fasilitas` varchar(100) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -55,7 +55,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `log_status`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8 */;
 CREATE TABLE `log_status` (
   `id` int NOT NULL AUTO_INCREMENT,
   `peminjaman_id` int NOT NULL,
@@ -70,7 +70,7 @@ CREATE TABLE `log_status` (
   CONSTRAINT `log_status_ibfk_1` FOREIGN KEY (`peminjaman_id`) REFERENCES `peminjaman` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `log_status_ibfk_2` FOREIGN KEY (`status_id`) REFERENCES `status_peminjaman` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `log_status_ibfk_3` FOREIGN KEY (`diubah_oleh`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -89,7 +89,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `peminjaman`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8 */;
 CREATE TABLE `peminjaman` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
@@ -110,7 +110,7 @@ CREATE TABLE `peminjaman` (
   CONSTRAINT `peminjaman_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `peminjaman_ibfk_2` FOREIGN KEY (`ruangan_id`) REFERENCES `ruangan` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `peminjaman_ibfk_3` FOREIGN KEY (`status_id`) REFERENCES `status_peminjaman` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -129,7 +129,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `ruangan`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8 */;
 CREATE TABLE `ruangan` (
   `id` int NOT NULL AUTO_INCREMENT,
   `nama_ruangan` varchar(100) NOT NULL,
@@ -138,7 +138,7 @@ CREATE TABLE `ruangan` (
   `deskripsi` text,
   `Lantai` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -147,7 +147,47 @@ CREATE TABLE `ruangan` (
 
 LOCK TABLES `ruangan` WRITE;
 /*!40000 ALTER TABLE `ruangan` DISABLE KEYS */;
+INSERT INTO `ruangan` (`id`, `nama_ruangan`, `gedung`, `kapasitas`, `deskripsi`, `foto`, `Lantai`) VALUES
+(1,'Ruang 101','Gedung A',40,'Ruang kelas standar untuk kuliah teori.','ruang101.jpg','1'),
+(2,'Ruang 102','Gedung A',30,'Ruang presentasi dengan dukungan multimedia.','ruang102.jpg','1'),
+(3,'Ruang 111','Gedung B',30,'Ruang diskusi dan praktikum skala kecil.','ruang111.jpg','2'),
+(4,'Ruang 112','Gedung B',40,'Ruang kelas besar untuk kegiatan akademik.','ruang112.jpg','2');
 /*!40000 ALTER TABLE `ruangan` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `ruangan_foto`
+--
+
+DROP TABLE IF EXISTS `ruangan_foto`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8 */;
+CREATE TABLE `ruangan_foto` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `ruangan_id` int NOT NULL,
+  `nama_file` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `tipe` enum('detail','cover') NOT NULL DEFAULT 'detail',
+  PRIMARY KEY (`id`),
+  KEY `ruangan_id` (`ruangan_id`),
+  CONSTRAINT `fk_ruangan_foto_ruangan` FOREIGN KEY (`ruangan_id`) REFERENCES `ruangan` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `ruangan_foto`
+--
+
+LOCK TABLES `ruangan_foto` WRITE;
+/*!40000 ALTER TABLE `ruangan_foto` DISABLE KEYS */;
+INSERT INTO `ruangan_foto` (`id`, `ruangan_id`, `nama_file`, `tipe`) VALUES
+(1,1,'ruang101.jpg','cover'),
+(2,2,'ruang102_cover.jpg','cover'),
+(3,2,'ruang102_detail1.jpg','detail'),
+(4,2,'ruang102_detail2.jpg','detail'),
+(5,3,'ruang111.jpg','cover'),
+(6,4,'ruang112.jpg','cover');
+/*!40000 ALTER TABLE `ruangan_foto` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -156,7 +196,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `ruangan_fasilitas`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8 */;
 CREATE TABLE `ruangan_fasilitas` (
   `id` int NOT NULL AUTO_INCREMENT,
   `ruangan_id` int DEFAULT NULL,
@@ -166,7 +206,7 @@ CREATE TABLE `ruangan_fasilitas` (
   KEY `fasilitas_id` (`fasilitas_id`),
   CONSTRAINT `ruangan_fasilitas_ibfk_1` FOREIGN KEY (`ruangan_id`) REFERENCES `ruangan` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `ruangan_fasilitas_ibfk_2` FOREIGN KEY (`fasilitas_id`) REFERENCES `fasilitas` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -175,6 +215,11 @@ CREATE TABLE `ruangan_fasilitas` (
 
 LOCK TABLES `ruangan_fasilitas` WRITE;
 /*!40000 ALTER TABLE `ruangan_fasilitas` DISABLE KEYS */;
+INSERT INTO `ruangan_fasilitas` (`ruangan_id`, `fasilitas_id`) VALUES
+(1,1),(1,2),(1,3),(1,5),(1,7),(1,8),
+(2,1),(2,2),(2,3),(2,4),(2,5),(2,6),(2,7),(2,8),
+(3,2),(3,3),(3,7),(3,8),
+(4,1),(4,2),(4,3),(4,4),(4,7),(4,8);
 /*!40000 ALTER TABLE `ruangan_fasilitas` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -184,12 +229,12 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `status_peminjaman`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8 */;
 CREATE TABLE `status_peminjaman` (
   `id` int NOT NULL AUTO_INCREMENT,
   `nama_status` varchar(50) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -208,7 +253,7 @@ UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
+/*!50503 SET character_set_client = utf8 */;
 CREATE TABLE `users` (
   `id` int NOT NULL AUTO_INCREMENT,
   `nama` varchar(100) NOT NULL,
@@ -219,7 +264,7 @@ CREATE TABLE `users` (
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <?php
 // src/templates/footer.php
 $scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');

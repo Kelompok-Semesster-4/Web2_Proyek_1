@@ -1,0 +1,212 @@
+<?php
+
+declare(strict_types=1);
+
+require_once __DIR__ . '/../config/koneksi.php';
+
+// dashboard tetap publik, tapi admin diarahkan ke area admin
+if (!empty($_SESSION['role']) && $_SESSION['role'] === 'admin') {
+   header('Location: ' . $BASE . 'admin/dashboard.php');
+   exit;
+}
+
+$pageTitle = "Home";
+$activeNav = "home";
+require_once __DIR__ . '/../templates/header.php';
+
+/* HERO IMAGE */
+$heroImages = query(" 
+   SELECT nama_file AS foto
+   FROM ruangan_foto
+   WHERE nama_file IS NOT NULL AND nama_file != ''
+   ORDER BY id DESC
+   LIMIT 10
+")->fetchAll();
+
+/* FILTER */
+$tgl_awal = $_GET['tgl_awal'] ?? '';
+$tgl_akhir = $_GET['tgl_akhir'] ?? '';
+$gedung = $_GET['gedung'] ?? '';
+
+$params = [];
+$where = [];
+
+if ($gedung) {
+   $where[] = "g.nama_gedung = ?";
+   $params[] = $gedung;
+}
+
+if ($tgl_awal && $tgl_akhir) {
+   $where[] = "NOT EXISTS (
+        SELECT 1 FROM peminjaman
+   WHERE peminjaman.ruangan_id = r.id
+        AND tanggal BETWEEN ? AND ?
+    )";
+   $params[] = $tgl_awal;
+   $params[] = $tgl_akhir;
+}
+
+$sql = "SELECT r.*, g.nama_gedung AS gedung, l.nomor AS Lantai,
+   (
+      SELECT rf.nama_file
+      FROM ruangan_foto rf
+      WHERE rf.ruangan_id = r.id
+      ORDER BY rf.id DESC
+      LIMIT 1
+   ) AS foto_utama
+   FROM ruangan r
+   LEFT JOIN lantai l ON l.id = r.lantai_id
+   LEFT JOIN gedung g ON g.id = l.gedung_id";
+if ($where)
+   $sql .= " WHERE " . implode(" AND ", $where);
+$sql .= " ORDER BY r.nama_ruangan";
+
+$ruangan = query($sql, $params)->fetchAll();
+
+$gedungList = query("SELECT id, nama_gedung FROM gedung ORDER BY id")->fetchAll();
+?>
+
+<!-- HERO -->
+<section class="hero-full">
+
+   <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel">
+
+      <div class="carousel-inner">
+
+         <?php if (empty($heroImages)): ?>
+            <div class="carousel-item active">
+               <img src="<?= $BASE ?>assets/icons/logo_big.svg" class="d-block w-100" alt="SIPERU">
+            </div>
+         <?php else: ?>
+            <?php foreach ($heroImages as $i => $img): ?>
+               <div class="carousel-item <?= $i == 0 ? 'active' : '' ?>">
+                  <img src="<?= $BASE ?>uploads/ruangan/<?= e($img['foto']) ?>" class="d-block w-100" alt="Hero Ruangan <?= $i + 1 ?>">
+               </div>
+            <?php endforeach; ?>
+         <?php endif; ?>
+
+      </div>
+
+   </div>
+
+   <div class="hero-content">
+      <h5>WELCOME TO SIPERU</h5>
+      <h1>Room Booking System</h1>
+      <h2>Fasilkom Unsri</h2>
+   </div>
+
+</section>
+
+<!-- FILTER -->
+<section class="filter-floating" id="filterSection">
+   <div class="container">
+      <form class="filter-box" method="get" id="filterForm">
+         <div class="row g-3 align-items-end">
+
+            <div class="col-md-3">
+               <label>Tanggal Awal</label>
+               <input type="date" name="tgl_awal" value="<?= e($tgl_awal) ?>" class="form-control">
+            </div>
+
+            <div class="col-md-3">
+               <label>Tanggal Akhir</label>
+               <input type="date" name="tgl_akhir" value="<?= e($tgl_akhir) ?>" class="form-control">
+            </div>
+
+            <div class="col-md-3">
+               <label>Gedung</label>
+               <div class="select-wrap">
+                  <select name="gedung" class="form-control">
+                     <option value="">Semua Gedung</option>
+                     <?php foreach ($gedungList as $g): ?>
+                        <option value="<?= e($g['nama_gedung']) ?>" <?= $gedung == $g['nama_gedung'] ? 'selected' : '' ?>>
+                           <?= e($g['nama_gedung']) ?>
+                        </option>
+                     <?php endforeach; ?>
+                  </select>
+               </div>
+            </div>
+
+            <div class="col-md-3">
+               <button class="btn w-100">Check</button>
+            </div>
+
+         </div>
+      </form>
+   </div>
+</section>
+
+<div class="wrap">
+   <section class="room-section">
+      <div class="container">
+
+         <?php if (!$ruangan): ?>
+            <div class="text-center text-muted fs-5 mt-5">
+               <p class="text-white">Saat ini ruangan di gedung yang dipilih tidak tersedia.</p><br>
+               <p class="text-white">Silakan cek gedung lain.</p>
+            </div>
+         <?php else: ?>
+
+            <div class="room-grid">
+               <?php foreach ($ruangan as $r): ?>
+                  <?php $fotoRuangan = $r['foto_utama'] ?? ''; ?>
+
+                  <div class="room-item">
+
+                     <div class="room-card">
+
+                        <div class="room-img">
+                           <img src="<?= !empty($fotoRuangan) ? ($BASE . 'uploads/ruangan/' . e($fotoRuangan)) : ($BASE . 'assets/icons/logo_big.svg') ?>"
+                              alt="<?= e($r['nama_ruangan']) ?>">
+                        </div>
+
+                        <div class="room-body">
+                           <div class="room-title"><?= e($r['nama_ruangan']) ?></div>
+
+                           <div class="room-meta">
+                              Lokasi: <?= e($r['gedung']) ?><br>
+                              Lantai: <?= e($r['Lantai'] ?? ($r['lantai'] ?? '-')) ?><br>
+                              Kapasitas: <?= e($r['kapasitas']) ?> orang
+                           </div>
+
+                           <a href="<?= $BASE ?>mahasiswa/detail_ruangan.php?id=<?= $r['id'] ?>" class="room-btn">
+                              View Details
+                           </a>
+                        </div>
+
+                     </div>
+
+                  </div>
+
+               <?php endforeach; ?>
+            </div>
+
+         <?php endif; ?>
+
+      </div>
+   </section>
+</div>
+
+<script>
+   // Scroll ke filter section setelah page load jika ada parameter filter
+   document.addEventListener('DOMContentLoaded', function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const hasFilter = urlParams.has('tgl_awal') || urlParams.has('tgl_akhir') || urlParams.has('gedung');
+
+      if (hasFilter) {
+         const filterSection = document.getElementById('filterSection');
+         if (filterSection) {
+            // Delay sedikit untuk memastikan page sudah render sempurna
+            setTimeout(() => {
+               const offsetTop = filterSection.offsetTop - 100; // 100px dari atas navbar
+               window.scrollTo({
+                  top: offsetTop,
+                  behavior: 'smooth'
+               });
+            }, 100);
+         }
+      }
+   });
+</script>
+
+<?php require_once __DIR__ . "/../templates/footer.php"; ?>
