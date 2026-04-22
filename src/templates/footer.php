@@ -1,7 +1,15 @@
 <?php
 // src/templates/footer.php
+$scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
+$isAdminPage = strpos($scriptName, '/src/admin/') !== false;
 ?>
 </div><!-- end .wrap -->
+
+<?php if ($isAdminPage): ?>
+</body>
+</html>
+<?php return; ?>
+<?php endif; ?>
 
 <footer class="footer">
   <div class="footerin">

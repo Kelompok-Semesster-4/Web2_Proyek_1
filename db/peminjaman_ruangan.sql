@@ -79,6 +79,7 @@ CREATE TABLE `log_status` (
 
 LOCK TABLES `log_status` WRITE;
 /*!40000 ALTER TABLE `log_status` DISABLE KEYS */;
+
 /*!40000 ALTER TABLE `log_status` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -118,6 +119,7 @@ CREATE TABLE `peminjaman` (
 
 LOCK TABLES `peminjaman` WRITE;
 /*!40000 ALTER TABLE `peminjaman` DISABLE KEYS */;
+
 /*!40000 ALTER TABLE `peminjaman` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -365,3 +367,4 @@ ADD COLUMN google_id VARCHAR(255) NULL UNIQUE;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2026-02-14 13:51:05
+

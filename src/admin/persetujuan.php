@@ -11,12 +11,16 @@ requireRole('admin');
 
 autoMarkSelesai();
 
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+
 $pageTitle = "Persetujuan Peminjaman";
 $activeAdmin = "approve";
 $adminId = (int) ($_SESSION['user_id'] ?? 0);
 
-$success = '';
-$error = '';
+$success = $_SESSION['flash_success'] ?? '';
+$error = $_SESSION['flash_error'] ?? '';
+unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 
 /**
  * Cek overlap jam: NOT (newStart >= oldEnd OR newEnd <= oldStart)
@@ -30,20 +34,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $catatan = trim($_POST['catatan_admin'] ?? '');
 
     if ($id <= 0) {
-        $error = "ID peminjaman tidak valid.";
-    } else {
-        // Ambil data peminjaman yang mau diproses (harus masih Menunggu)
+        $_SESSION['flash_error'] = 'ID peminjaman tidak valid.';
+        header('Location: persetujuan.php');
+        exit;
+    }
+
+    $pdo = db();
+    $pdo->beginTransaction();
+
+    try {
         $p = query(
             "SELECT id, ruangan_id, tanggal, jam_mulai, jam_selesai, status_id
              FROM peminjaman
-             WHERE id = ?",
+             WHERE id = ?
+             FOR UPDATE",
             [$id]
         )->fetch();
 
         if (!$p) {
-            $error = "Data peminjaman tidak ditemukan.";
+            throw new RuntimeException('Data peminjaman tidak ditemukan.');
         } elseif ((int) $p['status_id'] !== 1) {
-            $error = "Pengajuan ini sudah diproses (bukan Menunggu).";
+            throw new RuntimeException('Pengajuan ini sudah diproses (bukan Menunggu).');
         } else {
             if ($action === 'approve') {
                 // Setujui
@@ -92,7 +103,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     );
                 }
 
-                $success = "Pengajuan berhasil disetujui. Pengajuan lain yang bentrok otomatis ditolak.";
+                $_SESSION['flash_success'] = 'Pengajuan berhasil disetujui. Pengajuan lain yang bentrok otomatis ditolak.';
+                $pdo->commit();
+                header('Location: persetujuan.php');
+                exit;
             } elseif ($action === 'reject') {
                 // Tolak
                 query(
@@ -107,11 +121,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     [$id, 3, $adminId, $noteReject]
                 );
 
-                $success = "Pengajuan berhasil ditolak.";
+                $_SESSION['flash_success'] = 'Pengajuan berhasil ditolak.';
+                $pdo->commit();
+                header('Location: persetujuan.php');
+                exit;
             } else {
-                $error = "Aksi tidak dikenal.";
+                throw new RuntimeException('Aksi tidak dikenal.');
             }
         }
+    } catch (Throwable $throwable) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+
+        $_SESSION['flash_error'] = $throwable->getMessage();
+        header('Location: persetujuan.php');
+        exit;
     }
 }
 

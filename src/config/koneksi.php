@@ -23,6 +23,9 @@ if (file_exists($envPath)) {
         if ($line === '' || $line[0] === '#') {
             continue;
         }
+        if (strpos($line, '=') === false) {
+            continue;
+        }
         [$k, $v] = array_map('trim', explode('=', $line, 2));
         $_ENV[$k] = trim($v, "\"'");
     }
