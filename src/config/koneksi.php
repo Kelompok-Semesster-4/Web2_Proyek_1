@@ -66,7 +66,8 @@ function query(string $sql, array $params = []): PDOStatement
  * Otomatis ubah status peminjaman yang sudah lewat menjadi "Selesai"
  * Aturan: hanya yang statusnya Disetujui (2) -> Selesai (4)
  */
-function autoMarkSelesai(): void {
+function autoMarkSelesai(): void
+{
     $today = date('Y-m-d');
     $now = date('H:i:s');
 
