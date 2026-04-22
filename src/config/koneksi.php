@@ -42,8 +42,9 @@ function db(): PDO
     if ($pdo)
         return $pdo;
 
+    $dbName = env('DB_NAME', 'peminjaman_ruangan');
     $dsn = "mysql:host=" . env('DB_HOST', '127.0.0.1') .
-        ";dbname=" . env('DB_NAME', '') .
+        ";dbname=" . $dbName .
         ";charset=utf8mb4";
 
     $pdo = new PDO($dsn, env('DB_USER', 'root'), env('DB_PASS', ''), [
@@ -65,7 +66,8 @@ function query(string $sql, array $params = []): PDOStatement
  * Otomatis ubah status peminjaman yang sudah lewat menjadi "Selesai"
  * Aturan: hanya yang statusnya Disetujui (2) -> Selesai (4)
  */
-function autoMarkSelesai(): void {
+function autoMarkSelesai(): void
+{
     $today = date('Y-m-d');
     $now = date('H:i:s');
 
