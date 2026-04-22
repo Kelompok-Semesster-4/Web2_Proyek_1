@@ -446,7 +446,7 @@ require_once __DIR__ . '/../templates/admin_sidebar.php';
                                 <tr>
                                     <td colspan="5" class="text-center py-4 text-muted">Belum ada jadwal hari ini.</td>
                                 </tr>
-                                <?php else:
+                            <?php else:
                                 $todayStatusBadgeMap = [
                                     'Disetujui' => 'success',
                                     'Selesai' => 'success',
@@ -456,15 +456,18 @@ require_once __DIR__ . '/../templates/admin_sidebar.php';
                                 ];
                                 foreach ($jadwalHariIni as $jadwal):
                                     $todayStatusBadge = $todayStatusBadgeMap[$jadwal['nama_status']] ?? 'secondary';
-                                ?>
+                                    ?>
                                     <tr>
                                         <td><?= e(substr((string) $jadwal['jam_mulai'], 0, 5)) ?> -
-                                            <?= e(substr((string) $jadwal['jam_selesai'], 0, 5)) ?></td>
+                                            <?= e(substr((string) $jadwal['jam_selesai'], 0, 5)) ?>
+                                        </td>
                                         <td><?= e($jadwal['nama_ruangan']) ?><br><small
                                                 class="text-muted"><?= e($jadwal['gedung'] ?? '-') ?></small></td>
                                         <td><?= e($jadwal['nama_peminjam']) ?></td>
                                         <td><?= e($jadwal['nama_kegiatan']) ?></td>
-                                        <td><span class="badge bg-<?= e($todayStatusBadge) ?>"><?= e($jadwal['nama_status']) ?></span></td>
+                                        <td><span
+                                                class="badge bg-<?= e($todayStatusBadge) ?>"><?= e($jadwal['nama_status']) ?></span>
+                                        </td>
                                     </tr>
                                 <?php endforeach; endif; ?>
                         </tbody>
